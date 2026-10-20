@@ -1,5 +1,5 @@
 """Run a prepared Thermal Desktop case in a dedicated working directory."""
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 import math
 import re
@@ -89,7 +89,7 @@ def run_prepared(request, output, progress):
     metadata = {"drawing": str(Path(request.drawing).resolve()), "case": request.case,
                 "node": request.node, "overrides": parse_overrides(request.overrides),
                 "solver_directory": str(work), "heat_w": "Not extracted; CSV column is blank.",
-                "inputs": "Prepared DWG controls physics; preview config values do not apply."}
+                "model_description": "The prepared Thermal Desktop drawing defines physics; temperatures are exported in SI units."}
     config = TrialConfig(model=request.drawing)
-    folder = save_results(config, samples, root, "OpenTD prepared-case result", metadata)
+    folder = save_results(config, samples, root, "OpenTD prepared-case result", metadata, asdict(request))
     return samples, folder

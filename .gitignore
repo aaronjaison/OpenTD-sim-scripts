@@ -6,3 +6,6 @@ coverage.json
 htmlcov/
 output/
 *.log
+*.egg-info/
+build/
+dist/

@@ -33,6 +33,9 @@ class TrialConfig:
             raise ValueError("Area and convection must be nonnegative; emissivity must be 0–1.")
         if self.step > self.duration or self.duration / self.step > 100000:
             raise ValueError("Use a step no larger than duration and at most 100,000 steps.")
+        capacity = self.mass * self.specific_heat
+        if not math.isfinite(capacity) or capacity <= 0:
+            raise ValueError("Combined thermal capacity must be finite and greater than zero.")
         if self.model:
             path = Path(self.model)
             if path.suffix.lower() not in {".sldprt", ".sldasm"} or not path.is_file():

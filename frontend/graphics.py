@@ -45,7 +45,7 @@ def draw_chart(canvas, samples):
         canvas.create_text(380, 145, text="Run a trial to see temperature over time",
                            fill="#b4c5d8", font=("Segoe UI", 14))
         return
-    stride = max(1, len(samples)//1000)
+    stride = max(1, (len(samples) + 998)//1000)
     chosen = samples[::stride]
     if chosen[-1] is not samples[-1]:
         chosen = [*chosen, samples[-1]]

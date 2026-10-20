@@ -5,6 +5,7 @@ from queue import Empty
 import webbrowser
 from .connections import Connections
 from .graphics import theme, input_form, draw_chart
+from .layout import ScrollableFrame
 
 
 class Application:
@@ -21,9 +22,9 @@ class Application:
         ttk.Label(body, text="Configure → simulate → compare   /   Python prototype").pack(anchor="w", pady=(0, 12))
         tabs = ttk.Notebook(body)
         tabs.pack(fill="both", expand=True)
-        preview = ttk.Frame(tabs, padding=10)
-        tabs.add(preview, text="Thermal preview")
-        self._preview(preview)
+        self.preview = ScrollableFrame(tabs)
+        tabs.add(self.preview.frame, text="Thermal preview")
+        self._preview(self.preview.body)
         from .opentd_panel import OpenTDPanel
         self.opentd = OpenTDPanel(tabs, self.connections.output)
         tabs.add(self.opentd.frame, text="OpenTD automation")

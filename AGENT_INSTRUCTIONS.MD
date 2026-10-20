@@ -21,3 +21,19 @@
 
 ## Other specifications
 - within the interface, one should be able to upload their .SLDPRT and .SLDASM files and be able to configure the equations and numbers used in the physics simulations
+
+
+## Prototype supporting modules
+- /app.py - launches the Tkinter workbench.
+- /frontend/layout.py - creates scrollable panels for smaller displays.
+- /frontend/opentd_panel.py - presents prepared-case controls and queues OpenTD status updates.
+- /backend/equations.py - parses and evaluates bounded arithmetic heat-input equations.
+- /backend/solver.py - integrates the lumped thermal preview with RK4.
+- /backend/plotting.py - generates SVG temperature plots from trial samples.
+- /backend/opentd_trials.py - runs isolated copies of prepared Thermal Desktop cases and extracts a node temperature.
+- /backend/results_interp.py - implements the results_interp.py responsibility described above.
+- /tests - separate Pytest files covering all application modules, including real Tk widgets and vendor API contracts.
+- /backend/opentd.runtimeconfig.json - selects the Windows Desktop .NET 8 framework for optional coreclr use.
+
+The preview records SolidWorks source references but does not parse/mesh CAD geometry.
+The OpenTD path requires a prepared DWG. Its case controls physical properties independently of preview inputs.

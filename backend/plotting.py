@@ -15,7 +15,7 @@ def coordinates(samples, width=760, height=320):
 
 def svg(samples, title):
     """Render a sampled polyline; retain full precision in the separate CSV."""
-    stride = max(1, len(samples) // 1000)
+    stride = max(1, (len(samples) + 998) // 1000)
     selected = samples[::stride]
     if selected[-1] is not samples[-1]:
         selected = [*selected, samples[-1]]

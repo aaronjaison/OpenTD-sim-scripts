@@ -4,6 +4,7 @@ from threading import Thread
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import webbrowser
+from .layout import ScrollableFrame
 from backend.open_td_api import diagnostics
 from backend.opentd_trials import OpenTDRequest, run_prepared
 
@@ -11,21 +12,23 @@ from backend.opentd_trials import OpenTDRequest, run_prepared
 class OpenTDPanel:
     def __init__(self, parent, output):
         self.output, self.events, self.busy = output, Queue(), False
-        self.frame = ttk.Frame(parent, padding=18)
-        ttk.Label(self.frame, text="Run a prepared Thermal Desktop case", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(self.frame, text="Import/mesh your SolidWorks geometry in Thermal Desktop first. This runs a separate DWG copy.\nKeep referenced meshes, materials and assemblies available at their original paths.", wraplength=950).pack(anchor="w", pady=12)
+        self.container = ScrollableFrame(parent)
+        self.frame = self.container.frame
+        body = self.container.body
+        ttk.Label(body, text="Run a prepared Thermal Desktop case", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(body, text="Import/mesh your SolidWorks geometry in Thermal Desktop first. This runs a separate DWG copy.\nKeep referenced meshes, materials and assemblies available at their original paths.", wraplength=950).pack(anchor="w", pady=12)
         self.values = {}
         for key, label in [("drawing", "Prepared drawing (.dwg)"), ("case", "Exact case name"),
                            ("group", "Case group (optional)"), ("node", "Result node (e.g. MAIN.1)")]:
-            ttk.Label(self.frame, text=label).pack(anchor="w", pady=(8, 2))
+            ttk.Label(body, text=label).pack(anchor="w", pady=(8, 2))
             value = tk.StringVar(self.frame)
             self.values[key] = value
-            ttk.Entry(self.frame, textvariable=value, width=90).pack(fill="x")
-        ttk.Button(self.frame, text="Choose drawing…", command=self.choose).pack(anchor="w", pady=8)
-        ttk.Label(self.frame, text="Case symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
-        self.overrides = tk.Text(self.frame, height=7, font=("Consolas", 11))
+            ttk.Entry(body, textvariable=value, width=90).pack(fill="x")
+        ttk.Button(body, text="Choose drawing…", command=self.choose).pack(anchor="w", pady=8)
+        ttk.Label(body, text="Case symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
+        self.overrides = tk.Text(body, height=7, font=("Consolas", 11))
         self.overrides.pack(fill="x", pady=6)
-        controls = ttk.Frame(self.frame)
+        controls = ttk.Frame(body)
         controls.pack(fill="x", pady=10)
         self.check_button = ttk.Button(controls, text="Check OpenTD installation", command=self.check)
         self.check_button.pack(side="left")
@@ -33,8 +36,8 @@ class OpenTDPanel:
         self.run_button.pack(side="left", padx=8)
         self.open_button = ttk.Button(controls, text="Open results", command=self.open_results, state="disabled")
         self.open_button.pack(side="left")
-        self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / .NET 8 · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")
-        ttk.Label(self.frame, textvariable=self.status, wraplength=950).pack(anchor="w", pady=12)
+        self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / AutoCAD 2024 default · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")
+        ttk.Label(body, textvariable=self.status, wraplength=950).pack(anchor="w", pady=12)
         self.timer = self.frame.after(100, self.poll)
 
     def choose(self):

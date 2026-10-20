@@ -50,7 +50,7 @@ def test_failure_not_published(tmp_path):
 def test_svg_escaping_flat_and_decimation():
     assert '&lt;script&gt;' in svg(ROWS,'<script>')
     assert coordinates([Sample(0,293,0)])==[(60,275)]
-    many=[Sample(i,293+i/100,0) for i in range(2002)]
+    many=[Sample(i,293+i/100,0) for i in range(2003)]
     chart=svg(many,'Long run')
-    assert '2001 s' in chart
+    assert '2002 s' in chart
     assert '730.00,35.00' in chart

@@ -1,5 +1,6 @@
 """Prepared-case isolation and fresh-result validation."""
 from pathlib import Path
+import json
 from types import SimpleNamespace as NS
 from unittest.mock import Mock
 import pytest
@@ -47,6 +48,9 @@ def test_isolated_trial(prepared):
     p.case.Update.assert_called_once();p.case.Run.assert_called_once()
     assert samples[-1].temperature_k==294
     assert (folder/'report.md').is_file()
+    config=json.loads((folder/'config.json').read_text())['config']
+    assert config['case']=='Case' and 'mass' not in config
+    assert 'Preview assumption' not in (folder/'report.md').read_text()
     assert 'OpenTD prepared-case result' in (folder/'report.md').read_text()
     assert (folder/'results.csv').read_text().endswith('1.0,294.0,\n')
 

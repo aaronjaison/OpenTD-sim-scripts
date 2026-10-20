@@ -25,7 +25,7 @@ def solve(config, cancelled, progress):
     def rate(time, temperature):
         # A physical bound catches unstable steps and invalid equations early.
         if not math.isfinite(temperature) or not 0 < temperature <= 10000:
-            raise ValueError("Temperature left 0â€“10,000 K; reduce the step or review inputs.")
+            raise ValueError("Temperature left 0–10,000 K; reduce the step or review inputs.")
         heat = evaluate(expression, time, temperature, config.ambient)
         loss = config.convection * config.area * (temperature - config.ambient)
         loss += config.emissivity * SIGMA * config.area * (temperature**4 - config.ambient**4)

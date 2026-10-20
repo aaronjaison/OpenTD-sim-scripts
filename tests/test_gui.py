@@ -45,7 +45,7 @@ def test_selection_errors_and_events(ui):
 
 
 def test_plot_sampling(ui):
-    rows=[Sample(i,293+i/100,0) for i in range(2002)]
+    rows=[Sample(i,293+i/100,0) for i in range(2003)]
     draw_chart(ui.canvas,rows)
     assert ui.canvas.find_all()
 
@@ -58,3 +58,12 @@ def test_entrypoints():
     with patch('tkinter.Tk') as factory,patch('frontend.interface.Application'):
         runpy.run_module('app',run_name='__main__')
         factory.return_value.mainloop.assert_called_once()
+
+
+def test_scrolling_and_default_connections(root):
+    from types import SimpleNamespace
+    instance=Application(root)
+    instance.preview.update_width(SimpleNamespace(width=900))
+    instance.preview.update_region()
+    assert float(instance.preview.canvas.itemcget(instance.preview.window,'width'))==900
+    instance.close()

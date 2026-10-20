@@ -79,7 +79,7 @@ def read_temperatures(filename, node):
     system = importlib.import_module("System")
     assembly = clr.AddReference(str(assembly_directory() / "OpenTD.Results.dll"))
     # Direct type construction avoids optional plotting dependencies in Results.
-    dataset = system.Activator.CreateInstance(assembly.GetType("OpenTD.Results.Dataset.CSR"),
+    dataset = system.Activator.CreateInstance(assembly.GetType("OpenTD.Results.Dataset.SaveFile"),
                                              system.Array[system.Object]([str(filename)]))
     try:
         dataset.Units.SetToSI()

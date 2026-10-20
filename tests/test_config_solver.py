@@ -63,3 +63,8 @@ def test_large_run_progress_is_bounded():
     events=[]
     solve(TrialConfig(duration=1000),Event(),events.append)
     assert len(events)==100
+
+
+def test_capacity_overflow():
+    with pytest.raises(ValueError,match="thermal capacity"):
+        TrialConfig(mass=1e300,specific_heat=1e300).validate()
