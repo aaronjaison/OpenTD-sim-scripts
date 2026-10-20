@@ -39,3 +39,6 @@ The preview records SolidWorks source references but does not parse/mesh CAD geo
 The OpenTD path requires a prepared DWG. Its case controls physical properties independently of preview inputs.
 
 - /backend/toolchain.py - initializes installed Visual Studio x64 build tools for SINDA in this process only.
+
+- /backend/reuse.py - matches saved reports to configurations and input fingerprints, loads results, and supports forced reruns.
+- /frontend/test_queue.py - maintains FIFO test snapshots, visible status, waiting-test removal and selected-test reruns.

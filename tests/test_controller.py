@@ -23,9 +23,9 @@ def test_end_to_end(tmp_path):
 
 
 @pytest.mark.parametrize('error,kind',[(ValueError('bad'),'error'),(Cancelled('stop'),'cancelled')])
-def test_worker_errors(error,kind):
+def test_worker_errors(error,kind,tmp_path):
     controller=Controller(runner=Mock(side_effect=error))
-    controller._work(TrialConfig(),'output')
+    controller._work(TrialConfig(),tmp_path)
     assert controller.events.get()==(kind,str(error))
 
 

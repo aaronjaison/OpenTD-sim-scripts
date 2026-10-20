@@ -23,7 +23,7 @@ def test_gui_preview_run(ui,root):
     ui.poll()
     assert ui.folder.is_dir()
     assert ui.samples[-1].time_s==2
-    assert 'Saved 3 samples' in ui.status.get()
+    assert 'Results: 3 samples' in ui.status.get()
     assert ui.canvas.find_all()
     with patch('frontend.interface.webbrowser.open') as opened:
         ui.open_results();opened.assert_called_once_with(ui.folder.as_uri())

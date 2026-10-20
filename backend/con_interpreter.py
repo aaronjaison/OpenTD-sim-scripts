@@ -3,6 +3,7 @@ from queue import Queue
 from threading import Event, Thread
 from .main_processes import run_trial
 from .solver import Cancelled
+from .reuse import reuse_or_run
 
 
 class Controller:
@@ -17,21 +18,22 @@ class Controller:
     def busy(self):
         return self.worker is not None and self.worker.is_alive()
 
-    def start(self, config, output):
+    def start(self, config, output, force=False):
         if self.busy:
             raise ValueError("A trial is already running.")
         self.cancelled.clear()
-        self.worker = Thread(target=self._work, args=(config, output), daemon=True)
+        self.worker = Thread(target=self._work, args=(config, output, force), daemon=True)
         self.worker.start()
 
     def cancel(self):
         self.cancelled.set()
 
-    def _work(self, config, output):
+    def _work(self, config, output, force=False):
         # Catch worker errors and deliver them to the main Tk event loop.
         try:
-            result = self.runner(config, output, self.cancelled,
-                                 lambda text: self.events.put(("progress", text)))
+            progress = lambda text: self.events.put(("progress", text))
+            result = reuse_or_run(config, output,
+                lambda: self.runner(config, output, self.cancelled, progress), progress, force)
             self.events.put(("done", result))
         except Cancelled as error:
             self.events.put(("cancelled", str(error)))

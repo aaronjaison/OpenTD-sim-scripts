@@ -9,9 +9,9 @@ class Connections:
         self.controller = controller or Controller()
         self.output = Path(output) if output else Path(__file__).resolve().parents[1] / "output"
 
-    def run(self, fields):
+    def run(self, fields, force=False):
         config = from_fields(fields)
-        self.controller.start(config, self.output)
+        self.controller.start(config, self.output, force)
 
     def cancel(self):
         self.controller.cancel()

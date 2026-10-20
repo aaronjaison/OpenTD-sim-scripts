@@ -6,6 +6,8 @@ import webbrowser
 from .connections import Connections
 from .graphics import theme, input_form, draw_chart
 from .layout import ScrollableFrame
+from .test_queue import TestQueue
+from backend.config import from_fields
 
 
 class Application:
@@ -48,12 +50,15 @@ class Application:
         ttk.Label(parent, text="Energy balance: m·cp·dT/dt = Q − h·A·(T−Ta) − ε·σ·A·(T⁴−Ta⁴). Use smaller steps to check convergence.").pack(anchor="w")
         buttons = ttk.Frame(parent)
         buttons.pack(fill="x", pady=10)
-        self.run_button = ttk.Button(buttons, text="Run thermal preview", command=self.run)
+        self.run_button = ttk.Button(buttons, text="Load saved / run preview", command=self.run)
         self.run_button.pack(side="left")
         self.cancel_button = ttk.Button(buttons, text="Cancel", command=self.connections.cancel, state="disabled")
         self.cancel_button.pack(side="left", padx=8)
         self.open_button = ttk.Button(buttons, text="Open results folder", command=self.open_results, state="disabled")
         self.open_button.pack(side="left")
+        ttk.Button(buttons, text="Queue test", command=self.run).pack(side="left", padx=8)
+        ttk.Button(buttons, text="Re-run entirely", command=lambda: self.run(True)).pack(side="left")
+        self.jobs = TestQueue(parent)
         self.canvas = tk.Canvas(parent, width=760, height=320, bg="#101c2e", highlightthickness=0)
         self.canvas.pack(pady=4)
         draw_chart(self.canvas, [])
@@ -63,15 +68,26 @@ class Application:
         if path:
             self.model.set(path)
 
-    def run(self):
+    def run(self, force=False):
         try:
             fields = {key: value.get() for key, value in self.values.items()}
-            self.connections.run({**fields, "model": self.model.get()})
-            self.run_button.configure(state="disabled")
-            self.cancel_button.configure(state="normal")
-            self.status.set("Starting preview…")
+            fields = {**fields, "model": self.model.get()}
+            from_fields(fields)
+            self.enqueue(fields, force)
         except (ValueError, OSError) as error:
             messagebox.showerror("Check trial inputs", str(error), parent=self.root)
+
+    def enqueue(self, fields, force):
+        self.jobs.add(f"{fields['model'] or 'Manual body'} · {fields['heat']} W"
+                      + (" · fresh" if force else " · reuse"),
+                      lambda: self.start_preview(fields, force),
+                      lambda: self.enqueue(fields, True))
+
+    def start_preview(self, fields, force):
+        self.connections.run(fields, force)
+        self.run_button.configure(state="disabled")
+        self.cancel_button.configure(state="normal")
+        self.status.set("Loading saved results or running preview…")
 
     def poll(self):
         # Drain completed events before enabling another trial.
@@ -81,19 +97,21 @@ class Application:
                 self.handle_event(kind, payload)
         except Empty:
             pass
+        self.jobs.pump()
         self.timer = self.root.after(75, self.poll)
 
     def handle_event(self, kind, payload):
         if kind == "progress":
             self.status.set(payload)
             return
+        self.jobs.finish(kind)
         self.run_button.configure(state="normal")
         self.cancel_button.configure(state="disabled")
         if kind == "done":
             self.samples, self.folder = payload
             draw_chart(self.canvas, self.samples)
             self.open_button.configure(state="normal")
-            self.status.set(f"Saved {len(self.samples):,} samples · Final {self.samples[-1].temperature_k:.2f} K · {self.folder.name}")
+            self.status.set(f"Results: {len(self.samples):,} samples · Final {self.samples[-1].temperature_k:.2f} K · {self.folder.name}")
         else:
             self.status.set(payload)
             if kind == "error":
@@ -107,6 +125,7 @@ class Application:
         if self.opentd.busy:
             messagebox.showinfo("OpenTD is running", "Wait for the OpenTD operation to finish before closing.", parent=self.root)
             return
+        self.jobs.clear()
         self.connections.cancel()
         self.opentd.close()
         self.root.after_cancel(self.timer)

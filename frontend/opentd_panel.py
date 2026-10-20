@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import webbrowser
 from .layout import ScrollableFrame
+from .test_queue import TestQueue
+from backend.reuse import reuse_or_run
 from backend.open_td_api import diagnostics
 from backend.opentd_trials import OpenTDRequest, run_prepared
 
@@ -32,10 +34,13 @@ class OpenTDPanel:
         controls.pack(fill="x", pady=10)
         self.check_button = ttk.Button(controls, text="Check OpenTD installation", command=self.check)
         self.check_button.pack(side="left")
-        self.run_button = ttk.Button(controls, text="Run prepared case", command=self.run)
+        self.run_button = ttk.Button(controls, text="Load saved / run case", command=self.run)
         self.run_button.pack(side="left", padx=8)
         self.open_button = ttk.Button(controls, text="Open results", command=self.open_results, state="disabled")
         self.open_button.pack(side="left")
+        ttk.Button(controls, text="Queue test", command=self.run).pack(side="left", padx=8)
+        ttk.Button(controls, text="Re-run entirely", command=lambda: self.run(True)).pack(side="left")
+        self.jobs = TestQueue(body)
         self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / AutoCAD 2024 default · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")
         ttk.Label(body, textvariable=self.status, wraplength=950).pack(anchor="w", pady=12)
         self.timer = self.frame.after(100, self.poll)
@@ -46,16 +51,23 @@ class OpenTDPanel:
             self.values["drawing"].set(path)
 
     def check(self):
-        self.start(diagnostics)
+        if not self.busy:
+            self.jobs.add("Installation check", lambda: self.start(diagnostics))
 
-    def run(self):
+    def run(self, force=False):
         try:
             request = OpenTDRequest(**{key: value.get() for key, value in self.values.items()},
                                     overrides=self.overrides.get("1.0", "end")).validate()
-            self.start(lambda: run_prepared(request, self.output,
-                       lambda text: self.events.put(("progress", text))))
+            self.enqueue(request, force)
         except ValueError as error:
             messagebox.showerror("Check OpenTD inputs", str(error), parent=self.frame)
+
+    def enqueue(self, request, force):
+        progress = lambda text: self.events.put(("progress", text))
+        operation = lambda: reuse_or_run(request, self.output,
+            lambda: run_prepared(request, self.output, progress), progress, force)
+        self.jobs.add(f"{request.case} · {request.node}" + (" · fresh" if force else " · reuse"),
+                      lambda: self.start(operation), lambda: self.enqueue(request, True))
 
     def start(self, operation):
         if self.busy:
@@ -80,6 +92,7 @@ class OpenTDPanel:
                     self.status.set(value)
                     continue
                 self.busy = False
+                self.jobs.finish(kind)
                 self.run_button.configure(state="normal")
                 self.check_button.configure(state="normal")
                 if kind == "done" and isinstance(value, tuple):
@@ -90,6 +103,7 @@ class OpenTDPanel:
                     self.status.set(value)
         except Empty:
             pass
+        self.jobs.pump()
         self.timer = self.frame.after(100, self.poll)
 
     def open_results(self):
