@@ -1,0 +1,17 @@
+[project]
+name = "opentd-sim-scripts"
+version = "0.1.0"
+description = "Tkinter thermal trial workbench with optional OpenTD automation"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "pytest-cov>=6,<8"]
+opentd = ["pythonnet>=3.0,<4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=backend --cov=frontend --cov=app --cov-branch --cov-report=term-missing --cov-fail-under=100"
+
+[tool.coverage.run]
+branch = true
