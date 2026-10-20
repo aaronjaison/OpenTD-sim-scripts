@@ -48,6 +48,8 @@ def test_plot_sampling(ui):
     rows=[Sample(i,293+i/100,0) for i in range(2003)]
     draw_chart(ui.canvas,rows)
     assert ui.canvas.find_all()
+    draw_chart(ui.canvas,[Sample(0,318.15,None)])
+    assert any(ui.canvas.type(item)=="oval" for item in ui.canvas.find_all())
 
 
 def test_entrypoints():

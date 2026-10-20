@@ -54,3 +54,16 @@ def test_svg_escaping_flat_and_decimation():
     chart=svg(many,'Long run')
     assert '2002 s' in chart
     assert '730.00,35.00' in chart
+
+
+def test_steady_state_marker():
+    chart=svg([Sample(0,318.15,None)],"Steady state")
+    assert '<circle cx="60.00" cy="275.00"' in chart
+
+
+def test_fractional_ranges_and_full_series_extrema():
+    assert coordinates([Sample(0,293,0),Sample(.5,293.2,0)])[-1]==(730,35)
+    rows=[Sample(i,293,0) for i in range(2003)]
+    rows[1]=Sample(1,294,0)
+    chart=svg(rows,"Narrow peak")
+    assert "294.00 K" in chart and "730.00,275.00" in chart

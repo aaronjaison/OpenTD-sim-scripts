@@ -9,6 +9,7 @@ from . import open_td_api
 from .config import TrialConfig
 from .results_interp import save_results
 from .solver import Sample
+from .toolchain import prepare_toolchain
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,12 @@ def run_prepared(request, output, progress):
     work = Path(tempfile.mkdtemp(prefix="opentd-work-", dir=root))
     drawing = work / Path(request.drawing).name
     shutil.copy2(request.drawing, drawing)
+    for name in ("TdThermo.tdp", "RcOptics.rco"):
+        sidecar = Path(request.drawing).with_name(name)
+        if sidecar.is_file():
+            shutil.copy2(sidecar, work / name)
     progress("Starting Thermal Desktop with a separate drawing copy…")
+    prepare_toolchain()
     desktop = open_td_api.connect(drawing)
     case = desktop.GetCaseSet(request.case, request.group)
     # Direct all generated solver artifacts to the trial directory.
@@ -73,7 +79,7 @@ def run_prepared(request, output, progress):
             case.SymbolComments.Add("Thermal Trial Workbench override")
     case.Update()
     desktop.SaveAs(str(drawing.resolve()))
-    progress("Running prepared OpenTD case; wait for the licensed solver…")
+    progress("Running OpenTD case; check AutoCAD for model warnings or solver dialogs…")
     case.Run()
     saves = list(work.rglob("*.sav"))
     if len(saves) != 1:

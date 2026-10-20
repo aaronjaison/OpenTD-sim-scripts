@@ -69,5 +69,6 @@ def test_read_closes_dataset(monkeypatch,tmp_path,fail):
     else:
         assert api.read_temperatures('trial.sav','MAIN.1')==([0,1],[293,294])
     modules["clr"].AddReference.return_value.GetType.assert_called_once_with("OpenTD.Results.Dataset.SaveFile")
+    dataset.GetData.assert_called_once_with(["MAIN.T1"])
     dataset.Units.SetToSI.assert_called_once()
     dataset.Close.assert_called_once()

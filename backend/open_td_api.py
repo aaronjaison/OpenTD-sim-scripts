@@ -84,7 +84,8 @@ def read_temperatures(filename, node):
     try:
         dataset.Units.SetToSI()
         times = list(dataset.GetTimes())
-        data = dataset.GetData(system.Array[system.String]([node]))
+        submodel, identifier = node.rsplit(".", 1)
+        data = dataset.GetData(system.Array[system.String]([f"{submodel}.T{identifier}"]))
         temperatures = list(data[0])
         return times, temperatures
     finally:

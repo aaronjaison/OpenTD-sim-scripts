@@ -46,12 +46,15 @@ def draw_chart(canvas, samples):
                            fill="#b4c5d8", font=("Segoe UI", 14))
         return
     stride = max(1, (len(samples) + 998)//1000)
-    chosen = samples[::stride]
-    if chosen[-1] is not samples[-1]:
-        chosen = [*chosen, samples[-1]]
-    points = coordinates(chosen)
+    full_coordinates = coordinates(samples)
+    points = full_coordinates[::stride]
+    if points[-1] != full_coordinates[-1]:
+        points = [*points, full_coordinates[-1]]
     canvas.create_line(60, 35, 60, 275, 730, 275, fill="#61748c")
-    canvas.create_line(*[v for point in points for v in point], fill="#55d6be", width=2)
+    if len(points) > 1:
+        canvas.create_line(*[v for point in points for v in point], fill="#55d6be", width=2)
+    x, y = points[-1]
+    canvas.create_oval(x-3, y-3, x+3, y+3, fill="#55d6be", outline="")
     for x, y, text in [(62, 18, "Temperature (K)"), (680, 303, f"{samples[-1].time_s:g} s"),
                         (62, 303, f"{samples[0].time_s:g} s"),
                         (40, 45, f"{max(s.temperature_k for s in samples):.1f}"),

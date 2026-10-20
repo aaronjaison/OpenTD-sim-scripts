@@ -28,6 +28,7 @@ def test_overrides_and_request(tmp_path):
 
 @pytest.fixture
 def prepared(tmp_path,monkeypatch):
+    monkeypatch.setattr(trials,'prepare_toolchain',Mock())
     source=tmp_path/'source.dwg';source.write_bytes(b'original model')
     case=Mock(SymbolNames=NetList(['Q']),SymbolValues=NetList(['1']),SymbolComments=NetList(['old']))
     case.Run.side_effect=lambda:(Path(case.UserDirectory)/'trial.sav').touch()
@@ -41,7 +42,9 @@ def prepared(tmp_path,monkeypatch):
 
 def test_isolated_trial(prepared):
     p=prepared
+    sidecar=p.source.with_name("TdThermo.tdp");sidecar.write_text("material data")
     samples,folder=trials.run_prepared(p.request,p.output,lambda _:None)
+    assert (Path(p.case.UserDirectory)/"TdThermo.tdp").read_text()=="material data"
     assert p.source.read_bytes()==b'original model'
     assert p.case.SymbolValues==['2','5']
     assert p.case.SymbolNames==['Q','MASS']

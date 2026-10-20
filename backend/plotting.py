@@ -7,8 +7,8 @@ def coordinates(samples, width=760, height=320):
     times = [sample.time_s for sample in samples]
     temps = [sample.temperature_k for sample in samples]
     low, high = min(temps), max(temps)
-    span = max(high - low, 1.0)
-    duration = max(times[-1] - times[0], 1.0)
+    span = high - low or 1.0
+    duration = times[-1] - times[0] or 1.0
     return [(60 + (t-times[0])/duration*(width-90),
              height-45-(temp-low)/span*(height-80)) for t, temp in zip(times, temps)]
 
@@ -16,10 +16,12 @@ def coordinates(samples, width=760, height=320):
 def svg(samples, title):
     """Render a sampled polyline; retain full precision in the separate CSV."""
     stride = max(1, (len(samples) + 998) // 1000)
-    selected = samples[::stride]
-    if selected[-1] is not samples[-1]:
-        selected = [*selected, samples[-1]]
-    points = " ".join(f"{x:.2f},{y:.2f}" for x, y in coordinates(selected))
+    full_coordinates = coordinates(samples)
+    selected = full_coordinates[::stride]
+    if selected[-1] != full_coordinates[-1]:
+        selected = [*selected, full_coordinates[-1]]
+    endpoint = full_coordinates[-1]
+    points = " ".join(f"{x:.2f},{y:.2f}" for x, y in selected)
     low = min(row.temperature_k for row in samples)
     high = max(row.temperature_k for row in samples)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320">
@@ -31,4 +33,5 @@ def svg(samples, title):
 <text x="670" y="303">{samples[-1].time_s:g} s</text></g>
 <path d="M60 35 V275 H730" fill="none" stroke="#61748c"/>
 <polyline points="{points}" fill="none" stroke="#55d6be" stroke-width="2"/>
+<circle cx="{endpoint[0]:.2f}" cy="{endpoint[1]:.2f}" r="3" fill="#55d6be"/>
 </svg>'''
