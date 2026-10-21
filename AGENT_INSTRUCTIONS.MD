@@ -45,3 +45,5 @@ The OpenTD path requires a prepared DWG. Its case controls physical properties i
 
 - /backend/node_catalog.py - reads unique available thermal node IDs from an isolated drawing copy without solving.
 - /frontend/node_picker.py - displays the result-node dropdown and queues discovery, discarding results for a changed drawing.
+
+- /backend/node_results.py - validates all-node histories and exports individual temperatures plus unweighted mean/minimum/maximum histories.

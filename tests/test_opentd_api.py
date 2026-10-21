@@ -72,3 +72,28 @@ def test_read_closes_dataset(monkeypatch,tmp_path,fail):
     dataset.GetData.assert_called_once_with(["MAIN.T1"])
     dataset.Units.SetToSI.assert_called_once()
     dataset.Close.assert_called_once()
+
+
+@pytest.mark.parametrize("mode", ["ok", "empty", "incomplete", "error"])
+def test_read_all_nodes(monkeypatch,tmp_path,mode):
+    dataset = Mock()
+    dataset.GetTimes.return_value = [0, 1]
+    dataset.GetThermalSubmodels.return_value = ["MAIN"]
+    dataset.GetNodeIds.return_value = [10, 2, 2]
+    dataset.GetData.return_value = [[300, 301], [280, 281]]
+    if mode == "empty": dataset.GetNodeIds.return_value = []
+    if mode == "incomplete": dataset.GetData.return_value = [[300, 301]]
+    if mode == "error": dataset.GetData.side_effect = RuntimeError("read failed")
+    system = NS(Array=Arrays(), Object=object, String=str, Activator=Mock())
+    system.Activator.CreateInstance.return_value = dataset
+    modules = {"clr": Mock(), "System": system}
+    monkeypatch.setattr(api, "load_api", Mock())
+    monkeypatch.setattr(api, "assembly_directory", lambda: tmp_path)
+    monkeypatch.setattr(api.importlib, "import_module", lambda name: modules[name])
+    if mode == "ok":
+        assert api.read_all_temperatures("test.sav") == ([0, 1], {"MAIN.2": [300, 301], "MAIN.10": [280, 281]})
+        dataset.GetData.assert_called_once_with(["MAIN.T2", "MAIN.T10"])
+    else:
+        with pytest.raises((ValueError, RuntimeError)): api.read_all_temperatures("test.sav")
+    dataset.Close.assert_called_once()
+    dataset.Units.SetToSI.assert_called_once()

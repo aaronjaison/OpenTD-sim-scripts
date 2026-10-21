@@ -6,6 +6,7 @@ import json
 import math
 from pathlib import Path
 from .solver import Sample
+from .node_results import ALL_NODES
 
 
 def identity(config):
@@ -52,7 +53,10 @@ def reuse_or_run(config, output, operation, progress, force=False):
                         Path(path).stat().st_mtime <= record.stat().st_mtime for path in key["files"])
                 if not matches:
                     continue
-                if not all((folder / name).is_file() for name in ("report.md", "temperature.svg", "config.json")):
+                required = ["report.md", "temperature.svg", "config.json"]
+                if key["config"].get("node") == ALL_NODES:
+                    required += ["nodes.csv", "node_summary.csv"]
+                if not all((folder / name).is_file() for name in required):
                     continue
                 samples = read_samples(folder)
             except (OSError, ValueError, KeyError, TypeError):

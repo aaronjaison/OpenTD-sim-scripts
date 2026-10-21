@@ -10,6 +10,7 @@ from .config import TrialConfig
 from .results_interp import save_results
 from .solver import Sample
 from .toolchain import prepare_toolchain
+from .node_results import ALL_NODES, AVERAGE_DESCRIPTION, summarize, mean_samples, write_node_files
 
 
 @dataclass(frozen=True)
@@ -24,7 +25,7 @@ class OpenTDRequest:
         path = Path(self.drawing)
         if path.suffix.lower() != ".dwg" or not path.is_file():
             raise ValueError("Select a prepared Thermal Desktop .dwg file.")
-        if not self.case.strip() or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*\.\d+", self.node):
+        if not self.case.strip() or (self.node != ALL_NODES and not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*\.\d+", self.node)):
             raise ValueError("Enter the exact case name and a node such as MAIN.1.")
         parse_overrides(self.overrides)
         return self
@@ -84,7 +85,14 @@ def run_prepared(request, output, progress):
     saves = list(work.rglob("*.sav"))
     if len(saves) != 1:
         raise RuntimeError(f"Expected one fresh SINDA .sav result, found {len(saves)}. Inspect {work}.")
-    times, temperatures = open_td_api.read_temperatures(saves[0], request.node)
+    artifacts = None
+    if request.node == ALL_NODES:
+        times, histories = open_td_api.read_all_temperatures(saves[0])
+        summary = summarize(times, histories)
+        temperatures = [sample.temperature_k for sample in mean_samples(summary)]
+        artifacts = lambda folder: write_node_files(folder, times, histories, summary)
+    else:
+        times, temperatures = open_td_api.read_temperatures(saves[0], request.node)
     if not times or len(times) != len(temperatures):
         raise ValueError("OpenTD returned missing or mismatched time/temperature data.")
     if any(not math.isfinite(x) for x in times + temperatures):
@@ -97,5 +105,9 @@ def run_prepared(request, output, progress):
                 "solver_directory": str(work), "heat_w": "Not extracted; CSV column is blank.",
                 "model_description": "The prepared Thermal Desktop drawing defines physics; temperatures are exported in SI units."}
     config = TrialConfig(model=request.drawing)
-    folder = save_results(config, samples, root, "OpenTD prepared-case result", metadata, asdict(request))
+    engine = "OpenTD prepared-case result"
+    if request.node == ALL_NODES:
+        engine = "OpenTD all-node mean temperature"
+        metadata.update(node_count=len(histories), average_definition=AVERAGE_DESCRIPTION)
+    folder = save_results(config, samples, root, engine, metadata, asdict(request), artifacts)
     return samples, folder

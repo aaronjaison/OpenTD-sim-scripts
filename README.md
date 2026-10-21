@@ -67,7 +67,7 @@ For a compatible AutoCAD 2025+ installation, select `OPENTD_RUNTIME=coreclr`, se
 
 **Integration status:** a real OpenTD/SINDA calibration completed end to end on this computer: two nodes, a 293.15 K boundary, a 1 W/K conductor and 25 W heat input produced **318.15 K**, matching `293.15 + 25/1`. The actual `.sav` file was read using the vendor `SaveFile` reader and temperature identifier `CHECK.T1`, then published as Markdown, CSV, SVG and JSON through the same prepared-case pipeline used by the UI. A single-record steady-state result is supported.
 
-The supplied user drawing also connected successfully and its case/nodes were retrieved. Its case reached the model-check stage, which reported 80 duplicate node IDs. The model owner chose to preserve their shared temperatures, and the copied-model run accepted that choice. Thermal Desktop then stopped before solving: `Sum of From Edge Lengths is zero. Cannot do calculations for Edge conductance`, identifying `Edge Contactor[MAIN][1]::318`. That contactor's source-edge geometry must be corrected in the prepared model before temperatures can be exported; no nodes were renumbered or thermal connections removed. The standalone preview also completed a run linked to the supplied SolidWorks assembly. All 114 automated tests pass at 100% statement and branch coverage; vendor API contract doubles supplement, rather than replace, the live calibration.
+The supplied user drawing also connected successfully and its case/nodes were retrieved. Its case reached the model-check stage, which reported 80 duplicate node IDs. The model owner chose to preserve their shared temperatures, and the copied-model run accepted that choice. Thermal Desktop then stopped before solving: `Sum of From Edge Lengths is zero. Cannot do calculations for Edge conductance`, identifying `Edge Contactor[MAIN][1]::318`. That contactor's source-edge geometry must be corrected in the prepared model before temperatures can be exported; no nodes were renumbered or thermal connections removed. The standalone preview also completed a run linked to the supplied SolidWorks assembly. All 128 automated tests pass at 100% statement and branch coverage; vendor API contract doubles supplement, rather than replace, the live calibration.
 
 Older drawings may display version-backup/default-change dialogs in AutoCAD, which block OpenTD until handled. If startup times out, inspect that newly launched AutoCAD window before retrying; do not repeatedly launch more instances.
 
@@ -98,3 +98,25 @@ Click **Re-run entirely** to run the current form from scratch. To repeat a part
 Choose a prepared drawing on the OpenTD tab, then click **Load available nodes** below **Result node**. Select the desired node from the dropdown; the first available node is selected initially. Shared-temperature IDs appear once, sorted by submodel and numeric node ID. You can still type an ID manually when loading existing results without OpenTD.
 
 Node discovery runs through the background queue and requires installed/licensed AutoCAD and Thermal Desktop. It opens a separate drawing copy, reads the thermal nodes without running a case, and closes that inspection instance afterward. Changing the drawing clears the dropdown so nodes from the previous drawing are not offered. Click **Load available nodes** again after editing a drawing externally.
+
+## All-node results
+
+Select **All nodes** in the result-node dropdown to collect every unique thermal node present in the case's saved results. This option is available before loading the drawing's node list. Thermal Desktop still solves the prepared case once; the exporter reads all saved thermal nodes, including boundary nodes, rather than repeating the simulation for each node.
+
+Each result folder includes:
+- `nodes.csv`: time in seconds and one temperature-in-kelvin column per unique saved node.
+- `node_summary.csv`: arithmetic mean, minimum, maximum and node count at every saved time.
+- `results.csv` and `temperature.svg`: the mean temperature history, also linked from `report.md`.
+
+The average gives every unique saved submodel/node ID equal weight. Shared-temperature IDs count once. It is not mass-, area-, or heat-capacity-weighted. Nodes excluded from the case's saved outputs cannot be included. Missing, mismatched or nonfinite node histories fail the export instead of silently changing the averaging population. All-node and single-node configurations have separate saved-result matches; all-node reuse requires both additional CSV files.
+
+The actual two-node calibration save file was read through the new all-node adapter: CHECK.1 = 318.15 K and CHECK.2 = 293.15 K gave a mean of 305.65 K. Automated tests also verify changing averages on transient time grids.
+
+## Proposed thermal-image integration (not implemented)
+
+Temperature-colored images of the model require more than capturing the AutoCAD viewport. The installed API exposes `CaptureGraphicsArea`, but result-dataset activation, displayed time and temperature color-scale control still need a verified postprocessing workflow. The data export above is complete; image automation is awaiting the user's choice on this plan:
+
+1. Load the completed case's saved temperatures into postprocessing on its isolated drawing copy. Establish and validate commands/API calls for selecting each saved time and temperature display.
+2. Export PNG model views at the first, middle and final saved times (one image for steady state), using a fixed camera and a common Kelvin color scale. Include timestamps and a temperature legend.
+3. Save PNGs under `thermal_images/` with a manifest of source result, time, units, limits and camera; link them from the report. If rendering fails, preserve numerical results and report the image failure explicitly.
+4. Validate on a model with visible thermal geometry and known hot/cold regions. The existing two-node calibration validates numerical extraction, while the supplied assembly drawing still requires its edge-contactor issue to be corrected before its temperature fields can be rendered.

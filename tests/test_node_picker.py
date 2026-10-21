@@ -1,6 +1,7 @@
 """Exercise real dropdown widgets, queued discovery and changed drawing handling."""
 from unittest.mock import patch
 from backend.node_catalog import NodeCatalog
+from backend.node_results import ALL_NODES
 from frontend.opentd_panel import OpenTDPanel
 
 
@@ -17,16 +18,16 @@ def test_load_dropdown_and_selection(root, tmp_path):
             panel.work(operation)
             discover.assert_called_once_with(str(source.resolve()), tmp_path)
     panel.poll()
-    assert tuple(panel.nodes.combo["values"]) == result.nodes
+    assert tuple(panel.nodes.combo["values"]) == (ALL_NODES, *result.nodes)
     assert panel.values["node"].get() == "MAIN.1"
     assert "Loaded 2" in panel.status.get()
     panel.values["node"].set("MAIN.2")
     panel.nodes.accept(result)
     assert panel.values["node"].get() == "MAIN.2"
     panel.values["drawing"].set(str(tmp_path / "other.dwg"))
-    assert not panel.nodes.combo["values"] and not panel.values["node"].get()
+    assert tuple(panel.nodes.combo["values"]) == (ALL_NODES,) and not panel.values["node"].get()
     assert "ignored" in panel.nodes.accept(result)
-    assert not panel.nodes.combo["values"]
+    assert tuple(panel.nodes.combo["values"]) == (ALL_NODES,)
     panel.values["drawing"].set(str(source))
     assert "No thermal nodes" in panel.nodes.accept(NodeCatalog(str(source.resolve()), ()))
     assert not panel.values["node"].get()
