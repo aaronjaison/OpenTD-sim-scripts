@@ -6,6 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 import webbrowser
 from .layout import ScrollableFrame
 from .test_queue import TestQueue
+from .node_picker import NodePicker, NodeCatalog
 from backend.reuse import reuse_or_run
 from backend.open_td_api import diagnostics
 from backend.opentd_trials import OpenTDRequest, run_prepared
@@ -21,11 +22,14 @@ class OpenTDPanel:
         ttk.Label(body, text="Import/mesh your SolidWorks geometry in Thermal Desktop first. This runs a separate DWG copy.\nKeep referenced meshes, materials and assemblies available at their original paths.", wraplength=950).pack(anchor="w", pady=12)
         self.values = {}
         for key, label in [("drawing", "Prepared drawing (.dwg)"), ("case", "Exact case name"),
-                           ("group", "Case group (optional)"), ("node", "Result node (e.g. MAIN.1)")]:
+                           ("group", "Case group (optional)"), ("node", "Result node")]:
             ttk.Label(body, text=label).pack(anchor="w", pady=(8, 2))
             value = tk.StringVar(self.frame)
             self.values[key] = value
-            ttk.Entry(body, textvariable=value, width=90).pack(fill="x")
+            if key == "node":
+                self.nodes = NodePicker(body, self.values["drawing"], value, self.load_nodes, output)
+            else:
+                ttk.Entry(body, textvariable=value, width=90).pack(fill="x")
         ttk.Button(body, text="Choose drawing…", command=self.choose).pack(anchor="w", pady=8)
         ttk.Label(body, text="Case symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
         self.overrides = tk.Text(body, height=7, font=("Consolas", 11))
@@ -49,6 +53,9 @@ class OpenTDPanel:
         path = filedialog.askopenfilename(filetypes=[("Thermal Desktop drawing", "*.dwg")])
         if path:
             self.values["drawing"].set(path)
+
+    def load_nodes(self, operation):
+        self.jobs.add("Load available result nodes", lambda: self.start(operation))
 
     def check(self):
         if not self.busy:
@@ -95,7 +102,9 @@ class OpenTDPanel:
                 self.jobs.finish(kind)
                 self.run_button.configure(state="normal")
                 self.check_button.configure(state="normal")
-                if kind == "done" and isinstance(value, tuple):
+                if kind == "done" and isinstance(value, NodeCatalog):
+                    self.status.set(self.nodes.accept(value))
+                elif kind == "done" and isinstance(value, tuple):
                     _, self.folder = value
                     self.open_button.configure(state="normal")
                     self.status.set(f"OpenTD results saved: {self.folder}")
@@ -110,4 +119,5 @@ class OpenTDPanel:
         webbrowser.open(self.folder.as_uri())
 
     def close(self):
+        self.nodes.close()
         self.frame.after_cancel(self.timer)
