@@ -1,5 +1,6 @@
 """Result-node dropdown with asynchronous discovery and stale-result protection."""
 from pathlib import Path
+from .tooltips import Tooltip
 from backend.node_results import ALL_NODES
 from tkinter import ttk, messagebox
 from backend.node_catalog import NodeCatalog, discover_nodes, validate_drawing
@@ -11,6 +12,7 @@ class NodePicker:
         self.submit, self.output = submit, output
         self.combo = ttk.Combobox(parent, textvariable=selected, width=90, values=(ALL_NODES,))
         self.combo.pack(fill="x")
+        Tooltip(self.combo, "Choose a unique submodel.node ID to export, or All nodes for every saved temperature and the equally weighted mean. This does not change which nodes are solved.")
         ttk.Button(parent, text="Load available nodes", command=self.load).pack(anchor="w", pady=5)
         ttk.Label(parent, text="Loads nodes from a separate drawing copy without solving. Choose All nodes for every saved node and its mean over time.").pack(anchor="w")
         self.trace = drawing.trace_add("write", self.changed)

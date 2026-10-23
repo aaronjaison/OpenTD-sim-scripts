@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 from backend.config import TrialConfig
+from .tooltips import Tooltip
 from backend.plotting import coordinates
 
 # All editable thermal inputs carry explicit SI units.
@@ -12,16 +13,38 @@ FIELDS = [("mass", "Mass (kg)"), ("specific_heat", "Specific heat (J/kg/K)"),
           ("step", "Time step (s)"), ("heat", "Heat input Q(t,T) (W)")]
 
 
+HELP = {
+    "mass": "Effective mass of the uniform-temperature body in kilograms.",
+    "specific_heat": "Energy needed to raise one kilogram by one kelvin; determines thermal storage with mass.",
+    "area": "Effective surface area exchanging heat with the environment.",
+    "convection": "Convective heat-transfer coefficient. Use zero for a vacuum-only thermal preview.",
+    "emissivity": "Infrared emissivity from 0 to 1; controls radiative exchange in this preview.",
+    "initial": "Body temperature at time zero, in kelvin.",
+    "ambient": "Surrounding convection and radiation temperature, in kelvin.",
+    "duration": "Total preview duration in seconds.",
+    "step": "RK4 integration step in seconds. Reduce it to check numerical convergence.",
+    "heat": "Input power in watts: a number or expression using t, T and ambient, e.g. 25+5*sin(t/60).",
+}
+
+
 def theme(root):
     """Apply a readable desktop theme without extra dependencies."""
     style = ttk.Style(root)
     style.theme_use("clam")
-    style.configure("TFrame", background="#edf2f7")
-    style.configure("TLabel", background="#edf2f7", foreground="#16283e", font=("Segoe UI", 10))
+    style.configure("TFrame", background="#0b1220")
+    style.configure("TLabel", background="#0b1220", foreground="#dbe7f5", font=("Segoe UI", 10))
     style.configure("Title.TLabel", font=("Segoe UI", 22, "bold"))
     style.configure("TButton", padding=(12, 7), font=("Segoe UI", 10))
     style.configure("TNotebook.Tab", padding=(14, 7))
-    root.configure(background="#edf2f7")
+    style.configure("TNotebook", background="#0b1220", borderwidth=0)
+    style.configure("TEntry", fieldbackground="#162338", foreground="#e6edf7", insertcolor="#7dd3fc")
+    style.configure("TCombobox", fieldbackground="#162338", foreground="#e6edf7")
+    style.configure("TCheckbutton", background="#0b1220", foreground="#dbe7f5")
+    style.configure("TButton", background="#1b3048", foreground="#dbe7f5", borderwidth=0)
+    style.map("TButton", background=[("active", "#28506b")])
+    style.configure("TNotebook.Tab", background="#162338", foreground="#dbe7f5")
+    style.map("TNotebook.Tab", background=[("selected", "#28506b")])
+    root.configure(background="#0b1220")
 
 
 def input_form(parent):
@@ -32,8 +55,9 @@ def input_form(parent):
         row, column = divmod(index, 2)
         ttk.Label(parent, text=label).grid(row=row*2, column=column, sticky="w", padx=8, pady=(8, 2))
         values[key] = tk.StringVar(parent, value=str(getattr(defaults, key)))
-        ttk.Entry(parent, textvariable=values[key], width=28).grid(
-            row=row*2+1, column=column, sticky="ew", padx=8)
+        entry = ttk.Entry(parent, textvariable=values[key], width=28)
+        entry.grid(row=row*2+1, column=column, sticky="ew", padx=8)
+        Tooltip(entry, HELP[key] + " Preview only; does not change the prepared DWG.")
     parent.columnconfigure((0, 1), weight=1)
     return values
 

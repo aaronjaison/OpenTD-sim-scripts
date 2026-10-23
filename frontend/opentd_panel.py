@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import webbrowser
 from .layout import ScrollableFrame
+from .sim_form import SimulationForm
+from .tooltips import Tooltip
 from .test_queue import TestQueue
 from .node_picker import NodePicker, NodeCatalog
 from backend.reuse import reuse_or_run
@@ -18,7 +20,7 @@ class OpenTDPanel:
         self.container = ScrollableFrame(parent)
         self.frame = self.container.frame
         body = self.container.body
-        ttk.Label(body, text="Run a prepared Thermal Desktop case", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(body, text="MISSION / Thermal Desktop", style="Title.TLabel").pack(anchor="w")
         ttk.Label(body, text="Import/mesh your SolidWorks geometry in Thermal Desktop first. This runs a separate DWG copy.\nKeep referenced meshes, materials and assemblies available at their original paths.", wraplength=950).pack(anchor="w", pady=12)
         self.values = {}
         for key, label in [("drawing", "Prepared drawing (.dwg)"), ("case", "Exact case name"),
@@ -29,10 +31,15 @@ class OpenTDPanel:
             if key == "node":
                 self.nodes = NodePicker(body, self.values["drawing"], value, self.load_nodes, output)
             else:
-                ttk.Entry(body, textvariable=value, width=90).pack(fill="x")
+                entry = ttk.Entry(body, textvariable=value, width=90)
+                entry.pack(fill="x")
+                Tooltip(entry, {"drawing": "Prepared Thermal Desktop DWG. Runs use a copy; external references must remain accessible.",
+                    "case": "Exact name of an existing case set in the drawing.",
+                    "group": "Case-set group; leave blank for the default group."}[key])
         ttk.Button(body, text="Choose drawing…", command=self.choose).pack(anchor="w", pady=8)
-        ttk.Label(body, text="Case symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
-        self.overrides = tk.Text(body, height=7, font=("Consolas", 11))
+        self.simulation = SimulationForm(body)
+        ttk.Label(body, text="Advanced symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
+        self.overrides = tk.Text(body, height=3, font=("Consolas", 10), bg="#111e30", fg="#e6edf7", insertbackground="#7dd3fc", relief="flat")
         self.overrides.pack(fill="x", pady=6)
         controls = ttk.Frame(body)
         controls.pack(fill="x", pady=10)
@@ -47,6 +54,9 @@ class OpenTDPanel:
         self.jobs = TestQueue(body)
         self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / AutoCAD 2024 default · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")
         ttk.Label(body, textvariable=self.status, wraplength=950).pack(anchor="w", pady=12)
+        Tooltip(self.overrides, "Optional NAME=expression overrides. Do not duplicate enabled simulation parameters. Symbols must already control the intended model properties.")
+        Tooltip(self.run_button, "Load matching saved results, or run a new case if none exist.")
+        Tooltip(self.check_button, "Check the installed OpenTD runtime without launching a simulation.")
         self.timer = self.frame.after(100, self.poll)
 
     def choose(self):
@@ -64,7 +74,7 @@ class OpenTDPanel:
     def run(self, force=False):
         try:
             request = OpenTDRequest(**{key: value.get() for key, value in self.values.items()},
-                                    overrides=self.overrides.get("1.0", "end")).validate()
+                                    overrides=self.overrides.get("1.0", "end"), settings=self.simulation.read()).validate()
             self.enqueue(request, force)
         except ValueError as error:
             messagebox.showerror("Check OpenTD inputs", str(error), parent=self.frame)

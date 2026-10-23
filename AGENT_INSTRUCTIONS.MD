@@ -47,3 +47,8 @@ The OpenTD path requires a prepared DWG. Its case controls physical properties i
 - /frontend/node_picker.py - displays the result-node dropdown and queues discovery, discarding results for a changed drawing.
 
 - /backend/node_results.py - validates all-node histories and exports individual temperatures plus unweighted mean/minimum/maximum histories.
+
+- /backend/sim_settings.py - validates prepared-model simulation inputs and applies required named case overrides.
+- /frontend/sim_form.py - compact opt-in simulation settings with SI labels and help.
+- /frontend/tooltips.py - reusable hover and keyboard-focus explanations.
+- /DWG_PREPARATION.md - model-author checklist, named parameters, units, bindings and acceptance checks.
