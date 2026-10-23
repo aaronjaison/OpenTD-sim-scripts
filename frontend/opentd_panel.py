@@ -31,12 +31,15 @@ class OpenTDPanel:
             if key == "node":
                 self.nodes = NodePicker(body, self.values["drawing"], value, self.load_nodes, output)
             else:
-                entry = ttk.Entry(body, textvariable=value, width=90)
-                entry.pack(fill="x")
+                row = ttk.Frame(body)
+                row.pack(fill="x")
+                entry = ttk.Entry(row, textvariable=value, width=90)
+                entry.pack(side="left", fill="x", expand=True)
+                if key == "drawing":
+                    ttk.Button(row, text="Choose DWG…", command=self.choose).pack(side="left", padx=(8, 0))
                 Tooltip(entry, {"drawing": "Prepared Thermal Desktop DWG. Runs use a copy; external references must remain accessible.",
                     "case": "Exact name of an existing case set in the drawing.",
                     "group": "Case-set group; leave blank for the default group."}[key])
-        ttk.Button(body, text="Choose DWG…", command=self.choose).pack(anchor="w", pady=8)
         self.simulation = SimulationForm(body)
         ttk.Label(body, text="Advanced symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
         self.overrides = tk.Text(body, height=3, font=("Consolas", 10), bg="#111e30", fg="#e6edf7", insertbackground="#7dd3fc", relief="flat")
