@@ -57,3 +57,5 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 
 - /backend/case_catalog.py - discovers existing case names and groups in an isolated drawing copy.
 - /frontend/case_picker.py - selects exact cases/groups and rejects stale drawing results.
+
+- /frontend/errors.py - actionable failure dialogs and persistent traceback logs with queued request settings.

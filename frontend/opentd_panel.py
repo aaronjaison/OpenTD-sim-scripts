@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import webbrowser
 from .layout import ScrollableFrame
+from .errors import capture_failure, show_failure
 from .sim_form import SimulationForm
 from .tooltips import Tooltip
 from .test_queue import TestQueue
@@ -87,12 +88,13 @@ class OpenTDPanel:
         operation = lambda: reuse_or_run(request, self.output,
             lambda: run_prepared(request, self.output, progress), progress, force)
         self.jobs.add(f"{request.case} · {request.node}" + (" · fresh" if force else " · reuse"),
-                      lambda: self.start(operation), lambda: self.enqueue(request, True))
+                      lambda: self.start(operation, request), lambda: self.enqueue(request, True))
 
-    def start(self, operation):
+    def start(self, operation, context=None):
         if self.busy:
             return
         self.busy = True
+        self.context = context
         self.run_button.configure(state="disabled")
         self.check_button.configure(state="disabled")
         self.status.set("Working…")
@@ -102,7 +104,7 @@ class OpenTDPanel:
         try:
             self.events.put(("done", operation()))
         except Exception as error:
-            self.events.put(("error", str(error)))
+            self.events.put(("error", capture_failure(error, self.output, getattr(self, "context", None))))
 
     def poll(self):
         try:
@@ -124,7 +126,7 @@ class OpenTDPanel:
                     self.open_button.configure(state="normal")
                     self.status.set(f"OpenTD results saved: {self.folder}")
                 else:
-                    self.status.set(value)
+                    self.status.set(show_failure(value, self.frame) if kind == "error" else value)
         except Empty:
             pass
         self.jobs.pump()

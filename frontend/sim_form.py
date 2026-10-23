@@ -7,12 +7,14 @@ from .tooltips import Tooltip
 
 class SimulationForm:
     def __init__(self, parent):
+        container = ttk.Frame(parent)
+        container.pack(fill="x")
         self.enabled = tk.BooleanVar(parent, False)
         self.orbital = tk.BooleanVar(parent, False)
-        toggle = ttk.Checkbutton(parent, text="Customize simulation", variable=self.enabled, command=self.toggle)
+        toggle = ttk.Checkbutton(container, text="Customize simulation", variable=self.enabled, command=self.toggle)
         toggle.pack(anchor="w", pady=6)
         Tooltip(toggle, "Enable named SIM_* parameter overrides. Your DWG must follow the preparation guide; otherwise its existing case settings are preserved.")
-        self.body = ttk.Frame(parent)
+        self.body = ttk.Frame(container)
         self.values = {}
         for index, (name, (label, help_text, default)) in enumerate(FIELDS.items()):
             row, column = divmod(index, 3)

@@ -23,7 +23,10 @@ def test_choose_check_and_events(panel,tmp_path):
         panel.work(operation)
     panel.poll();assert panel.status.get()=='available' and not panel.busy
     panel.work(Mock(side_effect=ValueError('failed')))
-    panel.poll();assert panel.status.get()=='failed'
+    with patch('frontend.errors.messagebox.showerror') as dialog:
+        panel.poll()
+        dialog.assert_called_once()
+    assert panel.status.get()=='failed'
     panel.events.put(('progress','solving'));panel.poll();assert panel.status.get()=='solving'
     panel.events.put(('done',([],tmp_path)));panel.poll()
     assert panel.folder==tmp_path

@@ -51,7 +51,9 @@ def test_invalid_and_failed_load(root, tmp_path):
         operation = thread.call_args.kwargs["args"][0]
         with patch("frontend.node_picker.discover_nodes", side_effect=RuntimeError("OpenTD unavailable")):
             panel.work(operation)
-    panel.poll()
+    with patch("frontend.errors.messagebox.showerror") as dialog:
+        panel.poll()
+        dialog.assert_called_once()
     assert not panel.busy
     assert panel.status.get() == "OpenTD unavailable"
     panel.close()
