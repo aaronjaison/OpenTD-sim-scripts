@@ -42,3 +42,20 @@ The OpenTD path requires a prepared DWG. Its case controls physical properties i
 
 - /backend/reuse.py - matches saved reports to configurations and input fingerprints, loads results, and supports forced reruns.
 - /frontend/test_queue.py - maintains FIFO test snapshots, visible status, waiting-test removal and selected-test reruns.
+
+- /backend/node_catalog.py - reads unique available thermal node IDs from an isolated drawing copy without solving.
+- /frontend/node_picker.py - displays the result-node dropdown and queues discovery, discarding results for a changed drawing.
+
+- /backend/node_results.py - validates all-node histories and exports individual temperatures plus unweighted mean/minimum/maximum histories.
+
+- /backend/sim_settings.py - validates prepared-model simulation inputs and applies required named case overrides.
+- /frontend/sim_form.py - compact opt-in simulation settings with SI labels and help.
+- /frontend/tooltips.py - reusable hover and keyboard-focus explanations.
+- /DWG_PREPARATION.md - model-author checklist, named parameters, units, bindings and acceptance checks.
+
+The current application presents one prepared-DWG workflow: file, case, simulation settings, result selection and test queue. The standalone preview is retained only as a backend utility, not as a separate UI tab.
+
+- /backend/case_catalog.py - discovers existing case names and groups in an isolated drawing copy.
+- /frontend/case_picker.py - selects exact cases/groups and rejects stale drawing results.
+
+- /frontend/errors.py - actionable failure dialogs and persistent traceback logs with queued request settings.
