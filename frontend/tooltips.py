@@ -1,17 +1,21 @@
-"""Small hover/focus explanations with deterministic widget cleanup."""
+"""Delayed label-hover explanations with deterministic widget cleanup."""
 import tkinter as tk
 
 
 class Tooltip:
     def __init__(self, widget, text):
         self.widget, self.text, self.window = widget, text, None
-        widget.bind("<Enter>", self.show, add="+")
-        widget.bind("<FocusIn>", self.show, add="+")
+        self.timer = None
+        widget.bind("<Enter>", self.schedule, add="+")
         widget.bind("<Leave>", self.hide, add="+")
-        widget.bind("<FocusOut>", self.hide, add="+")
         widget.bind("<Destroy>", self.hide, add="+")
 
+    def schedule(self, *_):
+        self.hide()
+        self.timer = self.widget.after(2000, self.show)
+
     def show(self, *_):
+        self.timer = None
         if self.window is not None:
             return
         self.window = tk.Toplevel(self.widget)
@@ -24,6 +28,9 @@ class Tooltip:
                  bg="#203047", fg="#e6edf7", font=("Segoe UI", 10)).pack()
 
     def hide(self, *_):
+        if self.timer is not None:
+            self.widget.after_cancel(self.timer)
+            self.timer = None
         if self.window is not None:
             self.window.destroy()
             self.window = None

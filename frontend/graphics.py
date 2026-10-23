@@ -53,11 +53,12 @@ def input_form(parent):
     values = {}
     for index, (key, label) in enumerate(FIELDS):
         row, column = divmod(index, 2)
-        ttk.Label(parent, text=label).grid(row=row*2, column=column, sticky="w", padx=8, pady=(8, 2))
+        caption = ttk.Label(parent, text=label)
+        caption.grid(row=row*2, column=column, sticky="w", padx=8, pady=(8, 2))
         values[key] = tk.StringVar(parent, value=str(getattr(defaults, key)))
         entry = ttk.Entry(parent, textvariable=values[key], width=28)
         entry.grid(row=row*2+1, column=column, sticky="ew", padx=8)
-        Tooltip(entry, HELP[key] + " Preview only; does not change the prepared DWG.")
+        Tooltip(caption, HELP[key] + " Preview only; does not change the prepared DWG.")
     parent.columnconfigure((0, 1), weight=1)
     return values
 

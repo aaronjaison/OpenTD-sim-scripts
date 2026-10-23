@@ -9,6 +9,7 @@ from .sim_form import SimulationForm
 from .tooltips import Tooltip
 from .test_queue import TestQueue
 from .node_picker import NodePicker, NodeCatalog
+from .case_picker import CasePicker, CaseCatalog
 from backend.reuse import reuse_or_run
 from backend.open_td_api import diagnostics
 from backend.opentd_trials import OpenTDRequest, run_prepared
@@ -22,14 +23,17 @@ class OpenTDPanel:
         body = self.container.body
         ttk.Label(body, text="ORBIT / Thermal Workbench", style="Title.TLabel").pack(anchor="w")
         ttk.Label(body, text="01  Choose DWG     /     02  Set simulation     /     03  Queue tests", wraplength=950).pack(anchor="w", pady=12)
-        self.values = {}
+        self.values = {key: tk.StringVar(self.frame) for key in ("drawing", "case", "group", "node")}
         for key, label in [("drawing", "Prepared drawing (.dwg)"), ("case", "Exact case name"),
                            ("group", "Case group (optional)"), ("node", "Result node")]:
-            ttk.Label(body, text=label).pack(anchor="w", pady=(8, 2))
-            value = tk.StringVar(self.frame)
-            self.values[key] = value
+            caption = ttk.Label(body, text=label)
+            caption.pack(anchor="w", pady=(8, 2))
+            value = self.values[key]
+            Tooltip(caption, {"drawing": "Prepared DWG; runs use a copy.", "case": "Load existing case sets from this drawing; selecting one also sets its group.", "group": "Group of the selected case; blank means default.", "node": "Select one result node or All nodes for all saved temperatures and their mean."}[key])
             if key == "node":
                 self.nodes = NodePicker(body, self.values["drawing"], value, self.load_nodes, output)
+            elif key == "case":
+                self.cases = CasePicker(body, self.values, self.load_nodes, output)
             else:
                 row = ttk.Frame(body)
                 row.pack(fill="x")
@@ -37,11 +41,9 @@ class OpenTDPanel:
                 entry.pack(side="left", fill="x", expand=True)
                 if key == "drawing":
                     ttk.Button(row, text="Choose DWG…", command=self.choose).pack(side="left", padx=(8, 0))
-                Tooltip(entry, {"drawing": "Prepared Thermal Desktop DWG. Runs use a copy; external references must remain accessible.",
-                    "case": "Exact name of an existing case set in the drawing.",
-                    "group": "Case-set group; leave blank for the default group."}[key])
         self.simulation = SimulationForm(body)
-        ttk.Label(body, text="Advanced symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
+        advanced = ttk.Label(body, text="Advanced symbol overrides ⓘ")
+        advanced.pack(anchor="w")
         self.overrides = tk.Text(body, height=3, font=("Consolas", 10), bg="#111e30", fg="#e6edf7", insertbackground="#7dd3fc", relief="flat")
         self.overrides.pack(fill="x", pady=6)
         controls = ttk.Frame(body)
@@ -57,9 +59,7 @@ class OpenTDPanel:
         self.jobs = TestQueue(body)
         self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / AutoCAD 2024 default · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")
         ttk.Label(body, textvariable=self.status, wraplength=950).pack(anchor="w", pady=12)
-        Tooltip(self.overrides, "Optional NAME=expression overrides. Do not duplicate enabled simulation parameters. Symbols must already control the intended model properties.")
-        Tooltip(self.run_button, "Load matching saved results, or run a new case if none exist.")
-        Tooltip(self.check_button, "Check the installed OpenTD runtime without launching a simulation.")
+        Tooltip(advanced, "Optional NAME=expression overrides. Do not duplicate enabled simulation parameters. Symbols must already control the intended model properties.")
         self.timer = self.frame.after(100, self.poll)
 
     def choose(self):
@@ -68,7 +68,7 @@ class OpenTDPanel:
             self.values["drawing"].set(path)
 
     def load_nodes(self, operation):
-        self.jobs.add("Load available result nodes", lambda: self.start(operation))
+        self.jobs.add("Inspect drawing", lambda: self.start(operation))
 
     def check(self):
         if not self.busy:
@@ -117,6 +117,8 @@ class OpenTDPanel:
                 self.check_button.configure(state="normal")
                 if kind == "done" and isinstance(value, NodeCatalog):
                     self.status.set(self.nodes.accept(value))
+                elif kind == "done" and isinstance(value, CaseCatalog):
+                    self.status.set(self.cases.accept(value))
                 elif kind == "done" and isinstance(value, tuple):
                     _, self.folder = value
                     self.open_button.configure(state="normal")
@@ -133,4 +135,5 @@ class OpenTDPanel:
 
     def close(self):
         self.nodes.close()
+        self.cases.close()
         self.frame.after_cancel(self.timer)

@@ -25,7 +25,6 @@ class SimulationForm:
             entry = ttk.Entry(cell, textvariable=value, width=22)
             entry.pack(fill="x")
             Tooltip(caption, help_text)
-            Tooltip(entry, help_text)
         orbital = ttk.Checkbutton(self.body, text="Apply orbital parameters + recalculate RadCAD", variable=self.orbital)
         orbital.grid(row=4, column=0, columnspan=3, sticky="w", pady=6)
         Tooltip(orbital, "Requires a prepared orbit/attitude and solar, albedo and Earth IR radiation tasks linked to the documented orbital symbols.")
