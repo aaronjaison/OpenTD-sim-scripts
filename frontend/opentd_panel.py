@@ -20,8 +20,8 @@ class OpenTDPanel:
         self.container = ScrollableFrame(parent)
         self.frame = self.container.frame
         body = self.container.body
-        ttk.Label(body, text="MISSION / Thermal Desktop", style="Title.TLabel").pack(anchor="w")
-        ttk.Label(body, text="Import/mesh your SolidWorks geometry in Thermal Desktop first. This runs a separate DWG copy.\nKeep referenced meshes, materials and assemblies available at their original paths.", wraplength=950).pack(anchor="w", pady=12)
+        ttk.Label(body, text="ORBIT / Thermal Workbench", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(body, text="01  Choose DWG     /     02  Set simulation     /     03  Queue tests", wraplength=950).pack(anchor="w", pady=12)
         self.values = {}
         for key, label in [("drawing", "Prepared drawing (.dwg)"), ("case", "Exact case name"),
                            ("group", "Case group (optional)"), ("node", "Result node")]:
@@ -36,7 +36,7 @@ class OpenTDPanel:
                 Tooltip(entry, {"drawing": "Prepared Thermal Desktop DWG. Runs use a copy; external references must remain accessible.",
                     "case": "Exact name of an existing case set in the drawing.",
                     "group": "Case-set group; leave blank for the default group."}[key])
-        ttk.Button(body, text="Choose drawing…", command=self.choose).pack(anchor="w", pady=8)
+        ttk.Button(body, text="Choose DWG…", command=self.choose).pack(anchor="w", pady=8)
         self.simulation = SimulationForm(body)
         ttk.Label(body, text="Advanced symbol overrides: one NAME=expression per line (Thermal Desktop syntax)").pack(anchor="w")
         self.overrides = tk.Text(body, height=3, font=("Consolas", 10), bg="#111e30", fg="#e6edf7", insertbackground="#7dd3fc", relief="flat")
@@ -49,7 +49,7 @@ class OpenTDPanel:
         self.run_button.pack(side="left", padx=8)
         self.open_button = ttk.Button(controls, text="Open results", command=self.open_results, state="disabled")
         self.open_button.pack(side="left")
-        ttk.Button(controls, text="Queue test", command=self.run).pack(side="left", padx=8)
+        ttk.Button(controls, text="Add to queue", command=self.run).pack(side="left", padx=8)
         ttk.Button(controls, text="Re-run entirely", command=lambda: self.run(True)).pack(side="left")
         self.jobs = TestQueue(body)
         self.status = tk.StringVar(self.frame, "OpenTD 2026 R1 / AutoCAD 2024 default · Requires installed and licensed AutoCAD, Thermal Desktop and SINDA.")

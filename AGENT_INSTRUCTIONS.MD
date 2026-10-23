@@ -52,3 +52,5 @@ The OpenTD path requires a prepared DWG. Its case controls physical properties i
 - /frontend/sim_form.py - compact opt-in simulation settings with SI labels and help.
 - /frontend/tooltips.py - reusable hover and keyboard-focus explanations.
 - /DWG_PREPARATION.md - model-author checklist, named parameters, units, bindings and acceptance checks.
+
+The current application presents one prepared-DWG workflow: file, case, simulation settings, result selection and test queue. The standalone preview is retained only as a backend utility, not as a separate UI tab.

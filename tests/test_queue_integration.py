@@ -6,26 +6,39 @@ from frontend.opentd_panel import OpenTDPanel
 from frontend.test_queue import TestQueue
 
 
-def test_preview_queue_snapshots(root, tmp_path):
+def test_dwg_queue_snapshots(root, tmp_path):
+    from backend.solver import Sample
     ui = Application(root, Connections(tmp_path))
-    ui.values["duration"].set("2")
-    ui.values["heat"].set("10")
-    ui.run()
-    ui.values["heat"].set("40")
-    ui.run()
-    ui.connections.controller.worker.join(10)
-    ui.poll()
-    assert ui.samples[-1].heat_w == 10
-    ui.connections.controller.worker.join(10)
-    ui.poll()
-    assert ui.samples[-1].heat_w == 40
-    first_folder = ui.folder
-    ui.jobs.items.selection_set(1)
-    ui.jobs.rerun_selected()
-    ui.connections.controller.worker.join(10)
-    ui.poll()
-    assert ui.folder != first_folder
-    assert ui.samples[-1].heat_w == 40
+    panel = ui.opentd
+    drawing = tmp_path / "model.dwg"
+    drawing.touch()
+    for key, value in {"drawing": str(drawing), "case": "Case", "node": "MAIN.1"}.items():
+        panel.values[key].set(value)
+    panel.simulation.enabled.set(True)
+    panel.simulation.values["heat"].set("12000")
+    with patch("frontend.opentd_panel.Thread") as thread:
+        panel.run()
+        first = thread.call_args.kwargs["args"][0]
+        panel.simulation.values["heat"].set("60000")
+        panel.run()
+        assert len(panel.jobs.pending) == 1
+        captured = []
+        def runner(request, output, progress):
+            captured.append(request.settings.heat)
+            return [Sample(0, 300, None)], tmp_path
+        with patch("frontend.opentd_panel.run_prepared", runner):
+            panel.work(first)
+            panel.poll()
+            second = thread.call_args.kwargs["args"][0]
+            panel.work(second)
+            panel.poll()
+        assert captured == [12000, 60000]
+        panel.jobs.items.selection_set(0)
+        panel.jobs.rerun_selected()
+        with patch("frontend.opentd_panel.run_prepared", runner):
+            panel.work(thread.call_args.kwargs["args"][0])
+            panel.poll()
+        assert captured[-1] == 12000
     ui.close()
 
 
