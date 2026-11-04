@@ -59,3 +59,7 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 - /frontend/case_picker.py - selects exact cases/groups and rejects stale drawing results.
 
 - /frontend/errors.py - actionable failure dialogs and persistent traceback logs with queued request settings.
+
+- /backend/sweep_compare.py - validates histories, aligns saved times and compares nodes and area-weighted components.
+- /backend/ved_bundle.py - rebinds packaged VED study databases in a new local DWG copy.
+- /backend/ved_report.py - rebuilds the six-case CSV comparison report from exported fresh histories and supplied references.

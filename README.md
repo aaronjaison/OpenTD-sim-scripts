@@ -130,3 +130,7 @@ Worker failures display a **Test failed** dialog with recovery guidance. Full tr
 “DWG is missing prepared-model symbols” means the drawing cannot use the enabled customization controls. Turn customization off to run its existing case settings, or ask its author to bind the documented symbols according to [DWG preparation](DWG_PREPARATION.md). Merely adding unused symbols does not configure the physics. Advanced names such as `Q_BAT` and `EMIS` are model-specific and must already be defined and connected in the drawing; they do not substitute for the `SIM_*` contract.
 
 Inspection of the supplied STMSTroubleshootModelTD drawing found `Case Set 0`, two radiation tasks, and only built-in `hr*` symbols: no `SIM_*`, `Q_BAT`, or `EMIS`. Earlier solving also reported zero From Edge lengths for `Edge Contactor[MAIN][1]::318`; the model author needs to repair that contactor independently. Shared-temperature node IDs are preserved.
+
+## Recreated VED study
+
+See [the concise VED run guide](docs/VED_QUICKSTART.md) for exact cases, required databases, queue steps and output definitions; [reflectivity research](docs/REFLECTIVITY.md) explains the next optical extension.
