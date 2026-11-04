@@ -34,6 +34,9 @@ Requires licensed AutoCAD 2024, Thermal Desktop/RadCAD/SINDA 2026 R1, and the Vi
 | VED IR emissivity | 0.30, 0.40, 0.50, 0.60, 0.70, 0.80 respectively |
 | VED solar absorptivity | 0.85 in every case |
 | Orbit | Circular Earth orbit, altitude 600 km, beta angle 53.6 degrees |
+| Solar flux / albedo | 1367 W/m2 / 0.32 |
+| Earth IR flux | 202.700914 W/m2 in generated heating data (binder: 202.7) |
+| Attitude | Existing planet-oriented, velocity-constrained setup |
 | Orbital period | 5801.23510345288 s |
 | Run interval | 0 to 29006.18 s, approximately five orbits |
 | Output interval | 30 s plus final point: 968 saved times |
@@ -43,6 +46,8 @@ Requires licensed AutoCAD 2024, Thermal Desktop/RadCAD/SINDA 2026 R1, and the Vi
 | Internal heating | 3 W total; no added volumetric battery source |
 | Result identities | 705 unique saved nodes, including `SPACE.1` |
 | Radiation | Fresh RadCAD calculations for each case |
+
+Use the evaluated orbital period above: an older inactive Period field in the setup audit differs; generated `hrPeriodSec` and the heating time array establish the actual period.
 
 The six `.rco` files select the emissivity states. The binder's 0.85/0.35 switched-emissivity function is **not** used here. Existing shared-temperature node IDs are retained.
 
@@ -69,7 +74,7 @@ This regenerates component averages and comparison tables. It rejects missing no
 
 ## Important differences from the design binder
 
-The binder contains multiple studies. Pages 11-13 describe a battery/standalone VED COMSOL study with a 1000 km orbit, 6600 s period, 33000 s duration and varying emissivity. Appendix A lists a different period, 5968.62 s. Those are not the 600 km reference sweep's inputs; they must not be mixed into its reproduction.
+The binder contains multiple studies. Pages 11-13 describe a battery/standalone VED COMSOL study with a 1000 km orbit, 6600 s period, 33000 s duration and varying emissivity. Appendix A lists a different period, 5968.62 s. Figure 12 (page 22) is a point-temperature graph, not this study's area-weighted VED mean. Those are not the 600 km reference sweep's inputs; they must not be mixed into its reproduction.
 
 Appendix A (pages 45-48) is the material/environment reference. Its PV density of 2 kg/m3 and heat capacity of 1 J/kg/K, Kapton heat capacity of 1.09 J/kg/K, and swapped density/heat-capacity symbols require review. They are preserved for reproducibility, not endorsed. The model uses inferred component assignments. The reference itself reports omitted battery heating and ongoing orbit-to-orbit drift; five orbits are not proof of periodic equilibrium. Repair material values and confirm assignments before making design decisions.
 

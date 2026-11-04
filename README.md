@@ -134,3 +134,5 @@ Inspection of the supplied STMSTroubleshootModelTD drawing found `Case Set 0`, t
 ## Recreated VED study
 
 See [the concise VED run guide](docs/VED_QUICKSTART.md) for exact cases, required databases, queue steps and output definitions; [reflectivity research](docs/REFLECTIVITY.md) explains the next optical extension.
+
+[Fresh six-case results](docs/VED_RESULTS.md) include component overlays, worst-node differences and model limitations. All six runs reached 29006.18 s with 705 unique saved nodes.

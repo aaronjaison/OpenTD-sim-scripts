@@ -6,9 +6,11 @@
 
 Thermal Desktop can calculate the *thermal effect* of specified optical properties. It does not identify an unknown coating reflectivity from a temperature trace automatically. That needs measured reflectance data, an optical material model, or a separately designed parameter-fitting study. Temperature-only fitting can confuse reflectivity with emissivity, contact conductance, heating, or heat capacity.
 
-For each wavelength band, conserve incident energy: `absorptivity + reflectivity + transmissivity = 1`. For an opaque surface, transmission is zero, so solar reflectivity is `1 - solar absorptivity`. Under the corresponding grey IR/Kirchhoff assumptions, IR reflectivity is `1 - IR emissivity`. Do not use `1 - IR emissivity` as **solar** reflectivity: the bands differ. [Thermal radiation fundamentals](https://courses.ansys.com/wp-content/uploads/2020/05/Lesson-1-Intro-to-Thermal-Radiation.pdf)
+For each wavelength band, conserve incident energy: `absorptivity + reflectivity + transmissivity = 1`. For an opaque surface, transmission is zero, so solar reflectivity is `1 - solar absorptivity`. Under the corresponding grey IR/Kirchhoff assumptions, IR reflectivity is `1 - IR emissivity`. Do not use `1 - IR emissivity` as **solar** reflectivity: the bands differ. [NASA optical-property relations, equations 1-3](https://ntrs.nasa.gov/api/citations/20180003390/downloads/20180003390.pdf?attachment=true)
 
 The six supplied case optical files have `SOLTRANS=IRTRANS=0` and `SOLSPEC=IRSPEC=0` for VED: opaque, diffuse surfaces. For our current VED, solar absorptivity 0.85 means solar reflectivity 0.15. IR emissivities 0.30 to 0.80 imply IR reflectivities 0.70 to 0.20. Therefore this sweep already changes IR reflection along with emission, while solar reflection stays fixed. This is an inference from the optical inputs, not a newly measured coating property.
+
+The fresh reproduction generated `C1A1DirectAbsorbed.xls`, `C1A1ReflectedAbsorbed.xls` and `C1A1TotalAbsorbed.xls` (tab-separated reports with `.xls` extensions). The reflected-absorbed report contains nonzero powers. Reflection is already participating in this model; adding another reflected heat load would risk double counting. These reports are included in the study bundle under `radiation/`.
 
 ## How to extend our scripts
 
