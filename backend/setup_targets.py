@@ -48,7 +48,6 @@ def connect_targets(desktop, case, api, parameters, nodes, heat, volume, coating
             raise ValueError("Select eligible non-boundary nodes; every object sharing an ID must be eligible.")
         for node in selected:
             expression(api, node, "InitialTempExp", SYMBOLS["initial"])
-            node.UserOverride = True
             node.Update()
             records.append(("node", str(node.Handle), SYMBOLS["initial"]))
     if SYMBOLS["heat"] in parameters:

@@ -5,9 +5,11 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import webbrowser
 from .layout import ScrollableFrame
+from .panel_lifecycle import close_panel
 from .errors import capture_failure, show_failure
 from .sim_form import SimulationForm
 from .setup_controller import SetupController
+from .preparation.controller import PreparationController, ModelReady, MeshCatalog
 from backend.setup_wizard import SetupCatalog, SetupResult
 from .tooltips import Tooltip
 from .test_queue import TestQueue
@@ -44,6 +46,7 @@ class OpenTDPanel:
                 entry.pack(side="left", fill="x", expand=True)
                 if key == "drawing":
                     ttk.Button(row, text="Choose DWG…", command=self.choose).pack(side="left", padx=(8, 0))
+        self.preparation = PreparationController(self, body)
         self.simulation = SimulationForm(body)
         self.setup = SetupController(self, body)
         advanced = ttk.Label(body, text="Advanced symbol overrides ⓘ")
@@ -124,6 +127,8 @@ class OpenTDPanel:
                     self.status.set(self.nodes.accept(value))
                 elif kind == "done" and isinstance(value, CaseCatalog):
                     self.status.set(self.cases.accept(value))
+                elif kind == "done" and isinstance(value, (MeshCatalog, ModelReady)):
+                    self.status.set(self.preparation.accept(value))
                 elif kind == "done" and isinstance(value, (SetupCatalog, SetupResult)):
                     self.status.set(self.setup.accept(value))
                 elif kind == "done" and isinstance(value, tuple):
@@ -141,7 +146,4 @@ class OpenTDPanel:
         webbrowser.open(self.folder.as_uri())
 
     def close(self):
-        self.setup.close()
-        self.nodes.close()
-        self.cases.close()
-        self.frame.after_cancel(self.timer)
+        close_panel(self)

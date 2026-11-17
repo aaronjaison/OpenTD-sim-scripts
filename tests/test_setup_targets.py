@@ -10,7 +10,7 @@ from backend.sim_settings import SimulationSettings, apply_settings
 def model():
     def exp(value=""): return NS(Value=value, unitsType="unit")
     nodes = [NS(Submodel="MAIN", Id=1, Handle=h, NodeType="DIFFUSION", UseVersusTime=0,
-                InitialTempExp=exp(), Update=Mock()) for h in ("a", "b")]
+                InitialTempExp=exp(), UserOverride=False, Update=Mock()) for h in ("a", "b")]
     loads = [NS(Handle="h", Name="battery", Type="LOAD", HeatLoadTransientType="CONSTANT_HEAT_LOAD",
                 ValueExp=exp(), Update=Mock())]
     optic = NS(Name="VED", VarIrEmis=0, TempIrEmis=0, UseWaveLengthDepProps=0, emisExp=exp(), Update=Mock())
@@ -31,9 +31,10 @@ def test_connections_and_catalog(model):
     d, c, api, nodes, loads, optic = model
     assert catalog(d) == {"nodes": ["MAIN.1"], "loads": [("h", "battery", "LOAD")], "optics": ["VED"]}
     assert catalog(d, False)["optics"] == []
+    nodes[0].UserOverride = True
     records = connect_targets(d, c, api, SimulationSettings().parameters(), ("MAIN.1",), "h", 2e-5, "VED")
     verify_targets(d, c, records)
-    assert len(records) == 7 and all(n.UserOverride for n in nodes)
+    assert len(records) == 7 and [n.UserOverride for n in nodes] == [True, False]
     assert loads[0].ValueExp.Value.startswith("SIM_BATTERY_QVOL*")
     loads[0].Type = "VOLUME"
     connect_targets(d, c, api, {"SIM_BATTERY_QVOL": "2"}, (), "h", 0, "")

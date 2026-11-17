@@ -14,7 +14,7 @@
 | Duration | Selected case's `SindaControl.timendExp = SIM_DURATION_S` |
 | Save interval | Selected case's `outputExp = SIM_OUTPUT_S` |
 | Maximum solver step | Selected case's `dtimehExp = SIM_MAX_STEP_S`; verify it suits the case's solver procedure |
-| Initial temperature | Selected diffusion/arithmetic node IDs, in K. Every object sharing an ID is connected; boundary/time-varying nodes are excluded. Node UserOverride is enabled so generated geometry nodes retain the expression. Restart cases are rejected for this connection. |
+| Initial temperature | Selected diffusion/arithmetic node IDs, in K. Every object sharing an ID is connected; boundary/time-varying nodes are excluded. Existing node override flags are preserved so initial-temperature changes do not replace geometry-generated heat capacities. Restart cases are rejected for this connection. |
 | Battery heating | One explicitly selected existing constant heat load. A VOLUME load receives W/m3 directly. A LOAD in W receives `SIM_BATTERY_QVOL * represented_volume_m3`; enter the volume represented by that entire load. Flux/time-varying loads are unsupported. The existing load expression is replaced; no new heat source is added. |
 | Fixed emissivity | Selected existing constant IR coating's `emisExp = SIM_VED_EPS`. The effective case optical database is copied privately; solar absorption is retained. All faces using that coating are affected. Variable/temperature/spectral emissivity is rejected. RadCAD is enabled and its task-database option is set to RECALCULATE. |
 

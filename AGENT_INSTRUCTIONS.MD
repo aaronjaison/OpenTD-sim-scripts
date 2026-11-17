@@ -71,3 +71,20 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 - /docs/SETUP_WIZARD.md - user workflow, supported targets, units, scope and validation evidence.
 
 - /frontend/setup_optics.py - explains empty optical catalogs and queues explicit model database selection/reinspection.
+
+## Guided model preparation modules
+- /backend/preparation/__init__.py - preparation package.
+- /backend/preparation/geometry.py - inspect supported thermal entities/nodes and reject geometry-only CAD.
+- /backend/preparation/project.py - SI recipe validation, material mapping coverage and draft persistence.
+- /backend/preparation/properties.py - private material/optical databases and explicit entity assignments.
+- /backend/preparation/environment.py - nodal loads, conductors, radiation boundary and transient case authoring.
+- /backend/preparation/builder.py - validate/build isolated model copies and emit preparation receipts.
+- /frontend/preparation/__init__.py - preparation UI package.
+- /frontend/preparation/controller.py - serialized inspection/build jobs and safe result selection.
+- /frontend/preparation/dialog.py - five guided stages and draft save/load.
+- /frontend/preparation/forms.py - shared SI forms and lists.
+- /frontend/preparation/materials.py - explicit entity/component/material/coating assignments.
+- /frontend/preparation/network.py - nodal powers and point-to-point conductance inputs.
+- /frontend/preparation/environment.py - initial/boundary/solver values and existing-orbit selection.
+- /frontend/panel_lifecycle.py - closes workbench child controllers and polling together.
+- /docs/MODEL_PREPARATION.md - raw-CAD meshing handoff, authored model scope and live validation evidence.

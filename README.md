@@ -142,3 +142,7 @@ See [the concise VED run guide](docs/VED_QUICKSTART.md) for exact cases, require
 Enable Customize simulation and check only the fields to change, then choose **Connect settings…**. The wizard connects timing to the selected case, initial temperature to selected node IDs, battery generation to one existing constant heat load, and emissivity to an existing constant IR coating. It creates a new DWG copy and, for emissivity, a private optical database. Only checked overrides require symbols. See [the setup wizard guide](docs/SETUP_WIZARD.md) for scope, units and validation.
 
 Orbital bindings, geometry/mesh creation and new battery-region/load creation remain model-author preparation. The wizard checks saved expressions; a baseline and changed-value solve remain necessary to validate the intended physical model.
+
+## Guided model preparation
+
+**Prepare model…** opens source/mesh, material/coating, contact/heat, environment and build stages. Start a project from SolidWorks or DWG, save/reload drafts, inspect a vendor-meshed thermal DWG and author a new case/model copy. Geometry-only files are blocked from solving. SolidWorks import/meshing still uses TD Direct/SpaceClaim; existing validated orbits can be selected, while new orbit/attitude authoring remains in Thermal Desktop. See [the model-preparation guide](docs/MODEL_PREPARATION.md) for the exact supported workflow and live validation limits.
