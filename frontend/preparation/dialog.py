@@ -44,11 +44,11 @@ class PreparationDialog:
             row = ttk.Frame(page); row.pack(fill="x")
             ttk.Entry(row, textvariable=var).pack(side="left", fill="x", expand=True)
             ttk.Button(row, text="Choose…", command=lambda v=var, f=filters: self.choose(v, f)).pack(side="left", padx=8)
-        ttk.Label(page, text="CAD handoff: in TD Direct/SpaceClaim, import the SolidWorks assembly (or raw DWG), "
+        ttk.Label(page, text="CAD handoff: in TD Designer (2026 R1), or legacy TD Direct/SpaceClaim, import the SolidWorks assembly (or raw DWG), "
                   "simplify unwanted small features, verify model units, create a thermal surface/solid mesh, "
                   "retain component/layer names and save its Thermal Desktop DWG. Return here and select that DWG. "
                   "A DWG already containing thermal entities can be used directly. Plain CAD solids are blocked.", wraplength=900).pack(anchor="w", pady=16)
-        ttk.Label(page, text="TD Direct/SpaceClaim and CAD translators may need separate installation/licensing. "
+        ttk.Label(page, text="This machine has TD Designer and Discovery 2026 R1 installed. Start TD Designer from the Ansys Start menu; licensing and import/meshing still need a live check. "
                   "This wizard does not install software or fabricate a mesh.", wraplength=900).pack(anchor="w", pady=8)
         ttk.Label(page, text="New case name").pack(anchor="w")
         ttk.Entry(page, textvariable=self.case).pack(fill="x", pady=4)

@@ -6,9 +6,9 @@ Click **Prepare model…** in the workbench. This opens five stages in one prepa
 
 Select the original `.SLDASM`, `.SLDPRT` or `.dwg`. Keep SolidWorks referenced parts together. The source file is recorded and checksummed; it is not rewritten or tessellated by this release.
 
-For raw SolidWorks or plain CAD solids, import, simplify and mesh the geometry using licensed **TD Direct/SpaceClaim** (or the appropriate Thermal Desktop meshing tools). Check model dimensions and units. Preserve component names/layers so you can recognize thermal entities. Save a DWG containing Thermal Desktop surfaces/solids or supported thermal finite elements, then select it as **Thermal mesh DWG**. A DWG already containing thermal entities can be used directly. **Inspect thermal mesh** checks for supported thermal geometry and diffusion nodes; it rejects a geometry-only DWG.
+For raw SolidWorks or plain CAD solids, import, simplify and mesh the geometry using licensed **TD Designer (2026 R1)**, or legacy **TD Direct/SpaceClaim** (or the appropriate Thermal Desktop meshing tools). Check model dimensions and units. Preserve component names/layers so you can recognize thermal entities. Save a DWG containing Thermal Desktop surfaces/solids or supported thermal finite elements, then select it as **Thermal mesh DWG**. A DWG already containing thermal entities can be used directly. **Inspect thermal mesh** checks for supported thermal geometry and diffusion nodes; it rejects a geometry-only DWG.
 
-This is an explicit vendor-tool handoff, not an automatic SolidWorks mesher or an embedded CAD editor. No SpaceClaim executable was found in the installation inspected during development; installation, license availability and CAD translator support must be checked separately. The workflow can save a draft before this prerequisite is complete.
+This is an explicit vendor-tool handoff, not an automatic SolidWorks mesher or an embedded CAD editor. The local installation includes TD Designer 2026 R1 and Discovery 2026 R1. The TD Designer launcher is `C:\Program Files\ANSYS Inc\v261\CRTech\TD Designer\TDDLauncher\TDDLauncher.exe`; Discovery is `C:\Program Files\ANSYS Inc\v261\Discovery\Discovery.exe`. Use **Start menu > Ansys 2026 R1 > Thermal Desktop > TD Designer 2026 R1**. License availability and a real SolidWorks import/mesh still need validation. The earlier check for SpaceClaim.exe missed the Discovery-based replacement; absence of that filename is not evidence that the CAD preparation software is missing. The workflow can save a draft before this prerequisite is complete.
 
 ## 2. Materials and coatings
 
@@ -50,6 +50,8 @@ The resulting newly created case completed a real RadCAD/SINDA run through 10 s 
 
 ## Vendor references
 
-- [TD Direct CAD preparation and thermal meshing](https://www.crtech.com/products/td-direct)
+- [TD Designer 2026 R1 prerequisites](https://ansys.synopsys.com/support/thermal-desktop-system-requirements)
+- [TD Designer replaces TD Direct/SpaceClaim in 2026 R1](https://ansys.synopsys.com/en-gb/blog/whats-new-across-ansys-fluids-2026-r1)
+- [Legacy TD Direct CAD preparation and thermal meshing](https://www.crtech.com/products/td-direct)
 - [Thermal Desktop model and import capabilities](https://www.crtech.com/products/thermal-desktop)
 - [OpenTD mesh importer: external mesh import is distinct from CAD tessellation](https://developer.synopsys.com/docs/opentd-net8-reference-2025-r2/class_open_t_d_1_1_rad_c_a_d_1_1_f_e_mesh_importer.xhtml)

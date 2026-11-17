@@ -37,7 +37,7 @@ def inspect_mesh(drawing, output):
         nodes = tuple(sorted({f"{n.Submodel}.{n.Id}" for n in desktop.GetNodes()
                               if str(n.NodeType) == "DIFFUSION"}))
         if not objects or not nodes:
-            raise ValueError("This is geometry only, or has no supported thermal mesh. Import/mesh it in TD Direct or Thermal Desktop, save the thermal DWG, then inspect again.")
+            raise ValueError("This is geometry only, or has no supported thermal mesh. Import/mesh it in TD Designer, legacy TD Direct or Thermal Desktop, save the thermal DWG, then inspect again.")
         catalog = tuple((handle, str(obj.TypeName), str(obj.Layer), str(obj.Comment)) for handle, obj in objects.items())
         return MeshCatalog(str(Path(drawing).resolve()), catalog, nodes, len(desktop.GetHeatLoads()), tuple(str(o.Name) for o in desktop.GetOrbits()), hashlib.sha256(Path(drawing).read_bytes()).hexdigest())
     finally:

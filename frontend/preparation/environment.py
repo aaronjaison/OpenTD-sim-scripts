@@ -6,7 +6,7 @@ from .forms import fields
 class EnvironmentPage:
     def __init__(self, parent):
         ttk.Label(parent, text="Start with a deep-space baseline or select a validated orbit/attitude in the mesh DWG. "
-                  "Orbit creation and CAD meshing use the vendor tools; this screen does not infer pointing.", wraplength=800).pack(anchor="w", pady=8)
+                  "Orbit creation and CAD meshing use Thermal Desktop/TD Designer; this screen does not infer pointing.", wraplength=800).pack(anchor="w", pady=8)
         self.mode = ttk.Combobox(parent, values=("Deep space", "Existing orbit"), state="readonly")
         self.mode.set("Deep space"); self.mode.pack(fill="x", pady=6)
         ttk.Label(parent, text="Existing orbit name (required for orbital mode)").pack(anchor="w")
