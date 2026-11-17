@@ -48,7 +48,7 @@ class PreparationDialog:
                   "simplify unwanted small features, verify model units, create a thermal surface/solid mesh, "
                   "retain component/layer names and save its Thermal Desktop DWG. Return here and select that DWG. "
                   "A DWG already containing thermal entities can be used directly. Plain CAD solids are blocked.", wraplength=900).pack(anchor="w", pady=16)
-        ttk.Label(page, text="This machine has TD Designer and Discovery 2026 R1 installed. Start TD Designer from the Ansys Start menu; licensing and import/meshing still need a live check. "
+        ttk.Label(page, text="TD Designer uses Discovery in 2026 R1; older releases use TD Direct/SpaceClaim. Start the matching application from the Ansys Start menu and verify licensing and CAD translator support. "
                   "This wizard does not install software or fabricate a mesh.", wraplength=900).pack(anchor="w", pady=8)
         ttk.Label(page, text="New case name").pack(anchor="w")
         ttk.Entry(page, textvariable=self.case).pack(fill="x", pady=4)
