@@ -55,3 +55,5 @@ The resulting newly created case completed a real RadCAD/SINDA run through 10 s 
 - [Legacy TD Direct CAD preparation and thermal meshing](https://www.crtech.com/products/td-direct)
 - [Thermal Desktop model and import capabilities](https://www.crtech.com/products/thermal-desktop)
 - [OpenTD mesh importer: external mesh import is distinct from CAD tessellation](https://developer.synopsys.com/docs/opentd-net8-reference-2025-r2/class_open_t_d_1_1_rad_c_a_d_1_1_f_e_mesh_importer.xhtml)
+
+TD Designer 2026 R1 import/mesh automation is now available from the source page. See [TD Designer instructions and assembly test](TD_DESIGNER.md) for the exact prerequisites and current geometry blocker.

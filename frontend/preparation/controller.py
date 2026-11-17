@@ -50,3 +50,17 @@ class PreparationController:
     def close(self):
         if self.dialog is not None and self.dialog.window.winfo_exists():
             self.dialog.window.destroy()
+
+
+def queue_designer(dialog, run):
+    """Use the same serialized worker as solving so native applications do not race."""
+    from tkinter import messagebox
+    from backend.preparation.project import source_file
+    try:
+        source = str(source_file(dialog.source.get()))
+        controller = dialog.inspect.__self__
+        panel = controller.panel
+        panel.load_nodes(lambda: run(source, panel.output,
+                         lambda text: panel.events.put(('progress', text))))
+    except ValueError as error:
+        messagebox.showerror('Choose source CAD', str(error), parent=dialog.window)

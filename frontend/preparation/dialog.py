@@ -37,7 +37,7 @@ class PreparationDialog:
 
     def source_page(self, page):
         ttk.Label(page, text="Start with SolidWorks (.SLDASM/.SLDPRT) or a DWG. Keep assembly references together. "
-                  "This version guides the CAD/meshing handoff; it does not automatically mesh raw CAD.", wraplength=900).pack(anchor="w", pady=12)
+                  "Import / mesh starts TD Designer 2026 R1, checks its license and meshes a separate working copy.", wraplength=900).pack(anchor="w", pady=12)
         for label, var, filters in (("Source CAD", self.source, [("Supported CAD", "*.sldasm *.sldprt *.dwg")]),
                                     ("Thermal mesh DWG", self.mesh, [("Thermal Desktop DWG", "*.dwg")])):
             ttk.Label(page, text=label).pack(anchor="w", pady=(8, 2))
@@ -49,10 +49,16 @@ class PreparationDialog:
                   "retain component/layer names and save its Thermal Desktop DWG. Return here and select that DWG. "
                   "A DWG already containing thermal entities can be used directly. Plain CAD solids are blocked.", wraplength=900).pack(anchor="w", pady=16)
         ttk.Label(page, text="TD Designer uses Discovery in 2026 R1; older releases use TD Direct/SpaceClaim. Start the matching application from the Ansys Start menu and verify licensing and CAD translator support. "
-                  "This wizard does not install software or fabricate a mesh.", wraplength=900).pack(anchor="w", pady=8)
+                  "Import / mesh uses the installed vendor mesher; geometry repairs and thermal DWG import remain manual.", wraplength=900).pack(anchor="w", pady=8)
+        ttk.Button(page, text="Import / mesh in TD Designer", command=self.import_mesh).pack(anchor="w", pady=8)
         ttk.Label(page, text="New case name").pack(anchor="w")
         ttk.Entry(page, textvariable=self.case).pack(fill="x", pady=4)
         ttk.Button(page, text="Inspect thermal mesh", command=self.scan).pack(anchor="w", pady=12)
+
+    def import_mesh(self):
+        from backend.designer.workflow import run
+        from .controller import queue_designer
+        queue_designer(self, run)
 
     def choose(self, variable, filters):
         path = filedialog.askopenfilename(parent=self.window, filetypes=filters)

@@ -88,3 +88,11 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 - /frontend/preparation/environment.py - initial/boundary/solver values and existing-orbit selection.
 - /frontend/panel_lifecycle.py - closes workbench child controllers and polling together.
 - /docs/MODEL_PREPARATION.md - raw-CAD meshing handoff, authored model scope and live validation evidence.
+
+## TD Designer automation modules
+- /backend/designer/rpc.py - bounded local vendor API calls and optional dependency guidance.
+- /backend/designer/session.py - guarded launcher and asynchronous CAD import readiness.
+- /backend/designer/probe.py - hosted license checkout and imported-body receipt.
+- /backend/designer/status.py - native meshing failures and complete XML export detection.
+- /backend/designer/workflow.py - isolated native working copy, meshing job and source fingerprint receipt.
+- /docs/TD_DESIGNER.md - import/mesh usage, prerequisites, limits and real assembly validation.
