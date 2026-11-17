@@ -77,13 +77,13 @@ def test_dialog_validations_and_submission(root):
     dialog.create()
     with patch("frontend.setup_dialog.prepare_setup", return_value="prepared") as prepare:
         assert submitted.call_args.args[0]() == "prepared"
-        assert prepare.call_args.args[-4:] == (("MAIN.1",), "h", 2e-5, "VED")
+        assert prepare.call_args.args[-5:] == (("MAIN.1",), "h", 2e-5, "VED", "")
     dialog = SetupDialog(root, cat, SimulationSettings(selected=("duration",)), "out", submitted)
     dialog.volume.set("ignored")
     dialog.create()
     with patch("frontend.setup_dialog.prepare_setup") as prepare:
         submitted.call_args.args[0]()
-        assert prepare.call_args.args[-2] == 0
+        assert prepare.call_args.args[-3] == 0
 
 
 def test_selected_form_values(panel):

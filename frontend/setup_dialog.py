@@ -4,6 +4,7 @@ from tkinter import ttk, messagebox
 from backend.sim_settings import SYMBOLS
 from backend.setup_wizard import prepare_setup
 from .tooltips import Tooltip
+from .setup_optics import add_optical_help
 
 
 class SetupDialog:
@@ -12,7 +13,7 @@ class SetupDialog:
         self.window = tk.Toplevel(parent)
         self.window.title("Connect simulation settings")
         params = settings.parameters()
-        height = 300 + sum(extra for key, extra in (("initial", 230), ("heat", 130), ("emissivity", 75)) if SYMBOLS[key] in params)
+        height = 300 + sum(extra for key, extra in (("initial", 230), ("heat", 130), ("emissivity", 175)) if SYMBOLS[key] in params)
         self.window.geometry(f"760x{height}")
         body = ttk.Frame(self.window, padding=16)
         body.pack(fill="both", expand=True)
@@ -59,6 +60,8 @@ class SetupDialog:
         self.coating.pack(fill="x")
         if SYMBOLS["emissivity"] not in params:
             self.coating.configure(state="disabled")
+        else:
+            add_optical_help(self, body)
         body = main
         ttk.Label(body, text="Boundary/time-varying nodes and nonconstant heat loads are excluded. "
                   "Orbital connections remain model-author settings. Existing restart blocks initial-temperature setup.", wraplength=710).pack(anchor="w", pady=10)
@@ -85,5 +88,5 @@ class SetupDialog:
             return
         catalog, settings, output = self.catalog, self.settings, self.output
         self.submit(lambda: prepare_setup(catalog.drawing, catalog.case, catalog.group,
-            settings, output, nodes, heat, volume, coating))
+            settings, output, nodes, heat, volume, coating, catalog.targets.get("optical_database", "")))
         self.window.destroy()

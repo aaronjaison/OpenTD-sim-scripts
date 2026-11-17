@@ -31,3 +31,9 @@ On an isolated copy of Recreated_VED_Sweep.dwg, setup and a separate reopen reta
 Generated SINDA input confirmed 90/15/5; the saved history contained seven times through 90 s, MAIN.1 began at 295 K, other spacecraft nodes began at 293 K and SPACE.1 remained 3 K. Generated VED optical rows showed IR emissivity 0.55 and solar absorptivity 0.85. This was a connection/functionality check using an explicitly selected existing electronics load as a test target, not a new physical battery study or a rerun of the previous six-case sweep.
 
 `connections.json` verifies API expression readback after SaveAs. It is not a general solver-convergence or model-physics certification. Review custom solver logic, time steps, restart behavior, loads and coating assignments for each model. Force a fresh run after external database changes; not all external references participate in current cache fingerprints.
+
+## Empty emissivity dropdown
+
+The dropdown lists coatings from the selected case's optical database. If that `.rco` file is empty, the wizard now explains the problem and offers **Load optical database…**. Choose the actual database supplied with that model. The tool reloads the choices and copies that explicitly selected database when preparing the connected model. Loading a database does not assign a coating to geometry; select a coating already assigned to the intended faces and preserve the model's optical names.
+
+The inspected `ThermalDesktop251SP1_STMSTroubleshootModelTD.dwg` was resolving an optical database containing only `[UNICODE]`, with zero coatings, despite rectangles referencing names such as Aluminum. It needs its original populated database restored. For the reproduced VED study, choose `Recreated_VED_Sweep.dwg` and a `VED_e030` through `VED_e080` case; that study's actual databases contain the VED coating. Do not substitute an unrelated database just to populate the dropdown.

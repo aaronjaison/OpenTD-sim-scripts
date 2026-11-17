@@ -69,3 +69,5 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 - /frontend/setup_controller.py - queues wizard operations and handles setup results on the UI thread.
 - /frontend/setup_dialog.py - collects explicit model targets and reviews the scope of selected connections.
 - /docs/SETUP_WIZARD.md - user workflow, supported targets, units, scope and validation evidence.
+
+- /frontend/setup_optics.py - explains empty optical catalogs and queues explicit model database selection/reinspection.

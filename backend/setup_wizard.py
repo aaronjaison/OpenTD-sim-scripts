@@ -41,8 +41,8 @@ def isolated_copy(drawing, output):
     return copy
 
 
-def local_optics(desktop, case, drawing):
-    source = Path(case.OpticFilename if case.OpticOverride else desktop.GetOpticalPropDBPathname())
+def local_optics(desktop, case, drawing, optical_database=""):
+    source = Path(optical_database or (case.OpticFilename if case.OpticOverride else desktop.GetOpticalPropDBPathname()))
     if not source.is_absolute():
         raise ValueError("Optical database path must be absolute; resolve it in Thermal Desktop first.")
     if not source.is_file():
@@ -54,19 +54,21 @@ def local_optics(desktop, case, drawing):
     case.OpticFilename = str(target)
 
 
-def inspect_setup(drawing, case_name, group, output, include_optics=True):
+def inspect_setup(drawing, case_name, group, output, include_optics=True, optical_database=""):
     copy = isolated_copy(drawing, output)
     desktop = open_td_api.connect(copy)
     try:
         case = desktop.GetCaseSet(case_name, group)
         if include_optics:
-            local_optics(desktop, case, copy)
-        return SetupCatalog(str(Path(drawing).resolve()), case_name, group, catalog(desktop, include_optics))
+            local_optics(desktop, case, copy, optical_database)
+        targets = catalog(desktop, include_optics)
+        targets["optical_database"] = optical_database
+        return SetupCatalog(str(Path(drawing).resolve()), case_name, group, targets)
     finally:
         desktop.Quit()
 
 
-def prepare_setup(drawing, case_name, group, settings, output, nodes=(), heat="", volume=0, coating=""):
+def prepare_setup(drawing, case_name, group, settings, output, nodes=(), heat="", volume=0, coating="", optical_database=""):
     parameters = settings.parameters()
     if set(parameters) - {SYMBOLS[name] for name in SUPPORTED}:
         raise ValueError("The wizard connects basic settings only. Orbital connections require model-author preparation.")
@@ -76,7 +78,7 @@ def prepare_setup(drawing, case_name, group, settings, output, nodes=(), heat=""
         api = open_td_api.load_api()
         case = desktop.GetCaseSet(case_name, group)
         if SYMBOLS["emissivity"] in parameters:
-            local_optics(desktop, case, copy)
+            local_optics(desktop, case, copy, optical_database)
         available = {str(s.Name): s for s in desktop.GetSymbols()}
         for name, value in parameters.items():
             symbol = available.get(name)

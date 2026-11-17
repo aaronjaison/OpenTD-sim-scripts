@@ -30,7 +30,8 @@ def setup(tmp_path, monkeypatch):
 
 def test_prepare_and_inspect(setup, tmp_path):
     source, optics, case, d = setup
-    cat = w.inspect_setup(str(source), "Case", "", tmp_path)
+    cat = w.inspect_setup(str(source), "Case", "", tmp_path, optical_database=str(optics))
+    assert cat.targets["optical_database"] == str(optics)
     assert cat.targets["nodes"] == [] and optics.read_bytes() == b"optical"
     case.OpticOverride = 0
     result = w.prepare_setup(source, "Case", "G", SimulationSettings(duration=100, selected=("duration",)), tmp_path)
@@ -42,7 +43,7 @@ def test_prepare_and_inspect(setup, tmp_path):
     assert d.Quit.call_count == 2
     w.inspect_setup(source, "Case", "", tmp_path, include_optics=False)
     case.OpticOverride = 1; case.OpticFilename = str(optics)
-    result = w.prepare_setup(source, "Case", "", SimulationSettings(selected=("emissivity",)), tmp_path, coating="VED")
+    result = w.prepare_setup(source, "Case", "", SimulationSettings(selected=("emissivity",)), tmp_path, coating="VED", optical_database=str(optics))
     assert Path(result.drawing).with_name("setup-optics.rco").read_bytes() == b"optical"
     assert case.CalculateRadiation == 1
     assert d.CreateSymbol.call_count == 1
