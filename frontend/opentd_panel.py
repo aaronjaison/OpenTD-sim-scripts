@@ -7,6 +7,8 @@ import webbrowser
 from .layout import ScrollableFrame
 from .errors import capture_failure, show_failure
 from .sim_form import SimulationForm
+from .setup_controller import SetupController
+from backend.setup_wizard import SetupCatalog, SetupResult
 from .tooltips import Tooltip
 from .test_queue import TestQueue
 from .node_picker import NodePicker, NodeCatalog
@@ -43,6 +45,7 @@ class OpenTDPanel:
                 if key == "drawing":
                     ttk.Button(row, text="Choose DWG…", command=self.choose).pack(side="left", padx=(8, 0))
         self.simulation = SimulationForm(body)
+        self.setup = SetupController(self, body)
         advanced = ttk.Label(body, text="Advanced symbol overrides ⓘ")
         advanced.pack(anchor="w")
         self.overrides = tk.Text(body, height=3, font=("Consolas", 10), bg="#111e30", fg="#e6edf7", insertbackground="#7dd3fc", relief="flat")
@@ -121,6 +124,8 @@ class OpenTDPanel:
                     self.status.set(self.nodes.accept(value))
                 elif kind == "done" and isinstance(value, CaseCatalog):
                     self.status.set(self.cases.accept(value))
+                elif kind == "done" and isinstance(value, (SetupCatalog, SetupResult)):
+                    self.status.set(self.setup.accept(value))
                 elif kind == "done" and isinstance(value, tuple):
                     _, self.folder = value
                     self.open_button.configure(state="normal")
@@ -136,6 +141,7 @@ class OpenTDPanel:
         webbrowser.open(self.folder.as_uri())
 
     def close(self):
+        self.setup.close()
         self.nodes.close()
         self.cases.close()
         self.frame.after_cancel(self.timer)

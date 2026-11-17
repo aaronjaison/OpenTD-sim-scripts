@@ -7,12 +7,12 @@ The workbench runs copies of prepared Thermal Desktop drawings. Model authors ow
 1. Build and validate the thermal mesh/network, material assignments and connections. Define battery heated regions and the VED faces explicitly. Keep intentional shared-temperature node IDs; resolve accidental duplicates and invalid contactors. The supplied troubleshooting drawing currently fails on edge contactor MAIN.1, handle 318 (zero source-edge length).
 2. Provide an exact case name and optional case group. Verify that case runs successfully in Thermal Desktop, saves temperatures, and uses seconds/Kelvin/SI inputs consistently.
 3. Supply referenced meshes, material/optical databases, include files and assemblies. Adjacent TdThermo.tdp and RcOptics.rco are copied automatically; other references must resolve on the execution machine. Do not rely on another user's absolute paths.
-4. Define the symbols below in the drawing and connect their expressions to the appropriate model or case settings. Merely creating named symbols does not make them control the simulation. The script verifies their existence, but cannot establish whether an arbitrary model uses each symbol correctly.
+4. Use **Connect settings** for supported basic connections (see docs/SETUP_WIZARD.md), or define the symbols below in the drawing and connect their expressions to the appropriate model or case settings. Merely creating named symbols does not make them control the simulation. The script verifies their existence, but cannot establish whether an arbitrary model uses each symbol correctly.
 5. Document which nodes/regions each symbol controls. Validate a baseline and at least one changed value in Thermal Desktop before using queued comparisons.
 
 ## Basic simulation parameters
 
-These six symbols are required when **Customize simulation** is enabled. Their values are case-local overrides; the original drawing is unchanged. The script also sets the selected case to transient analysis.
+Only symbols for checked overrides are required when **Customize simulation** is enabled. Unchecked settings retain their existing case/model values. The table lists the six supported basic connections; they are not all mandatory. Their values are case-local overrides; the original drawing is unchanged. The script also sets the selected case to transient analysis.
 
 | Symbol | Units | Default | Required connection in the prepared DWG |
 |---|---|---|---|
@@ -25,11 +25,11 @@ These six symbols are required when **Customize simulation** is enabled. Their v
 
 Use battery-generation values 12000, 20000, 60000 or 120000 to reproduce the requested comparisons. Queue fixed-emissivity cases at 0.35 and 0.85. The UI does not implement a dynamic switching law: a model author must prepare and validate that law separately, using advanced overrides as appropriate. Fixed-state comparisons do not simulate switching.
 
-The script does not directly rewrite individual node/property expressions. It expects model authors to make the bindings above, avoiding geometry-dependent edits. Values use the listed units even if the drawing display units differ: model expressions must convert where needed. 293 K is 19.85°C; enter 293.15 for exactly 20°C.
+The setup wizard can write selected basic expressions to an isolated model copy. Manual model preparation remains available for advanced or unsupported targets. The run operation applies case-local parameter values to those bindings. Values use the listed units even if the drawing display units differ: model expressions must convert where needed. 293 K is 19.85°C; enter 293.15 for exactly 20°C.
 
 ## Optional orbital parameters
 
-Enabling **Apply orbital parameters + recalculate RadCAD** requires all basic symbols plus the following. It also requires an existing radiation-task list and enables radiation calculation for the case. Users must verify that the tasks actually calculate the intended loads; their presence alone cannot establish correctness.
+Orbital customization requires symbols only for the checked orbital overrides (and any checked basic overrides). Selecting nonzero Orbit cycles also requires selecting Orbital period and connects/overrides SIM_DURATION_S. The wizard does not author orbital bindings; those remain the model author's responsibility. It also requires an existing radiation-task list and enables radiation calculation for the case. Users must verify that the tasks actually calculate the intended loads; their presence alone cannot establish correctness.
 
 | Symbol | Units | Default | Required connection |
 |---|---|---|---|

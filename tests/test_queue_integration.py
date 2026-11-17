@@ -15,6 +15,7 @@ def test_dwg_queue_snapshots(root, tmp_path):
     for key, value in {"drawing": str(drawing), "case": "Case", "node": "MAIN.1"}.items():
         panel.values[key].set(value)
     panel.simulation.enabled.set(True)
+    panel.simulation.selected["heat"].set(True)
     panel.simulation.values["heat"].set("12000")
     with patch("frontend.opentd_panel.Thread") as thread:
         panel.run()

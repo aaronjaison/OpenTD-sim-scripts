@@ -136,3 +136,9 @@ Inspection of the supplied STMSTroubleshootModelTD drawing found `Case Set 0`, t
 See [the concise VED run guide](docs/VED_QUICKSTART.md) for exact cases, required databases, queue steps and output definitions; [reflectivity research](docs/REFLECTIVITY.md) explains the next optical extension.
 
 [Fresh six-case results](docs/VED_RESULTS.md) include component overlays, worst-node differences and model limitations. All six runs reached 29006.18 s with 705 unique saved nodes.
+
+## Connect simulation settings
+
+Enable Customize simulation and check only the fields to change, then choose **Connect settings…**. The wizard connects timing to the selected case, initial temperature to selected node IDs, battery generation to one existing constant heat load, and emissivity to an existing constant IR coating. It creates a new DWG copy and, for emissivity, a private optical database. Only checked overrides require symbols. See [the setup wizard guide](docs/SETUP_WIZARD.md) for scope, units and validation.
+
+Orbital bindings, geometry/mesh creation and new battery-region/load creation remain model-author preparation. The wizard checks saved expressions; a baseline and changed-value solve remain necessary to validate the intended physical model.

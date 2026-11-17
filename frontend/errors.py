@@ -18,7 +18,8 @@ def capture_failure(error, output, context):
     advice = "Check the diagnostic log and the Thermal Desktop case messages before retrying."
     if "missing prepared-model symbols" in message:
         advice = ("This drawing is not prepared for Customize simulation. To use its existing "
-                  "case settings, turn Customize simulation off. To apply these inputs, have the "
+                  "case settings, turn Customize simulation off. For selected basic inputs, use Connect settings. "
+                  "For other bindings, have the "
                   "model author create AND connect the SIM_* symbols described in DWG_PREPARATION.md. "
                   "Q_BAT and EMIS do not replace those bindings. Turning customization off does not "
                   "fix other model errors.")

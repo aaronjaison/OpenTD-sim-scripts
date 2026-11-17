@@ -11,7 +11,7 @@ from .node_results import ALL_NODES
 
 def identity(config):
     """Hash direct input files and default DWG databases with the configuration."""
-    settings = asdict(config)
+    settings = json.loads(json.dumps(asdict(config)))
     source = settings.get("drawing", settings.get("model", ""))
     paths = [Path(source)] if source else []
     if "drawing" in settings:

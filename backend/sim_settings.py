@@ -36,25 +36,43 @@ class SimulationSettings:
     beta: float = 0.0
     orbital: bool = False
 
+    selected: tuple[str, ...] | None = None
+
     def parameters(self):
-        values = {name: float(getattr(self, name)) for name in FIELDS}
+        # Explicit selections validate only the values the user will override.
+        names = list(FIELDS) if self.selected is None else list(self.selected)
+        if not names or len(set(names)) != len(names) or set(names) - FIELDS.keys():
+            raise ValueError("Select at least one known simulation setting, without duplicates.")
+        values = {name: float(getattr(self, name)) for name in names}
         if not all(math.isfinite(value) for value in values.values()):
             raise ValueError("Simulation inputs must be finite numbers.")
-        if any(values[name] <= 0 for name in ("initial", "duration", "output", "max_step", "period")):
-            raise ValueError("Temperatures, times and orbital period must be positive.")
-        if self.heat < 0 or not 0 <= self.emissivity <= 1:
-            raise ValueError("Heating must be nonnegative and emissivity must be between 0 and 1.")
-        if self.cycles < 0 or not values["cycles"].is_integer():
-            raise ValueError("Orbit cycles must be a nonnegative whole number.")
-        if self.cycles and not self.orbital:
-            raise ValueError("Enable orbital settings before selecting orbit cycles.")
-        if self.altitude < 0 or not 0 <= self.inclination <= 180 or not -90 <= self.beta <= 90:
-            raise ValueError("Check altitude, inclination (0–180) and beta angle (-90–90).")
-        end = self.cycles * self.period if self.cycles else self.duration
-        if not math.isfinite(end) or max(self.output, self.max_step) > end:
-            raise ValueError("Save interval and maximum step must not exceed the finite run duration.")
-        values["duration"] = end
-        names = list(FIELDS) if self.orbital else list(FIELDS)[:6]
+        for name in ("initial", "duration", "output", "max_step", "period"):
+            if name in values and values[name] <= 0:
+                raise ValueError("Temperatures, times and orbital period must be positive.")
+        if "heat" in values and values["heat"] < 0:
+            raise ValueError("Heating must be nonnegative.")
+        if "emissivity" in values and not 0 <= values["emissivity"] <= 1:
+            raise ValueError("Emissivity must be between 0 and 1.")
+        if "cycles" in values:
+            if values["cycles"] < 0 or not values["cycles"].is_integer():
+                raise ValueError("Orbit cycles must be a nonnegative whole number.")
+            if self.cycles:
+                if not self.orbital or "period" not in values:
+                    raise ValueError("Enable orbital settings and select period for orbit cycles.")
+                values["duration"] = self.cycles * self.period
+                if "duration" not in names:
+                    names.append("duration")
+        for name, low, high in (("altitude", 0, math.inf), ("inclination", 0, 180), ("beta", -90, 90)):
+            if name in values and not low <= values[name] <= high:
+                raise ValueError("Check altitude, inclination (0-180) and beta angle (-90-90).")
+        if not all(math.isfinite(v) for v in values.values()):
+            raise ValueError("Run duration must be finite.")
+        if "duration" in values and any(values[n] > values["duration"] for n in ("output", "max_step") if n in values):
+            raise ValueError("Save interval and maximum step must not exceed the run duration.")
+        if self.selected is None and not self.orbital:
+            names = list(FIELDS)[:6]
+        if self.selected is not None and set(names) & set(list(FIELDS)[6:]) and not self.orbital:
+            raise ValueError("Enable orbital settings for selected orbital parameters.")
         return {SYMBOLS[name]: format(values[name], ".17g") for name in names}
 
 

@@ -23,7 +23,7 @@ py -m venv .venv
 
 Requires licensed AutoCAD 2024, Thermal Desktop/RadCAD/SINDA 2026 R1, and the Visual Studio x64 C++/Intel Fortran tools required by SINDA. The preparation command also needs Thermal Desktop. The installation-check button only checks API loading; a completed solve verifies more than that check.
 
-**For this drawing, the existing cases already contain the solver and optical setup.** Turning on Customize simulation requests `SIM_*` bindings that this drawing does not have. Typing a value there cannot create a model connection. No `Q_BAT`, `EMIS`, or `SIM_*` overrides are needed for these six cases.
+**For this drawing, the existing cases already contain the solver and optical setup.** Checked custom overrides require `SIM_*` bindings that the original drawing does not have. The new **Connect settings** wizard can create selected basic bindings in a copy (see SETUP_WIZARD.md), but leave customization off to reproduce this unchanged reference sweep. Typing a value there cannot create a model connection. No `Q_BAT`, `EMIS`, or `SIM_*` overrides are needed for these six cases.
 
 ## Exact trial inputs
 

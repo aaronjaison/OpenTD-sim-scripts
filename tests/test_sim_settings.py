@@ -48,7 +48,9 @@ def test_form_and_tooltip(root):
     assert form.read() is None
     form.enabled.set(True)
     form.toggle()
-    assert form.read() == SimulationSettings()
+    for name in list(SYMBOLS)[:6]: form.selected[name].set(True)
+    form.refresh()
+    assert form.read() == SimulationSettings(selected=tuple(list(SYMBOLS)[:6]))
     form.values["heat"].set("60000")
     assert form.read().heat == 60000
     form.values["duration"].set("bad")

@@ -63,3 +63,9 @@ The current application presents one prepared-DWG workflow: file, case, simulati
 - /backend/sweep_compare.py - validates histories, aligns saved times and compares nodes and area-weighted components.
 - /backend/ved_bundle.py - rebinds packaged VED study databases in a new local DWG copy.
 - /backend/ved_report.py - rebuilds the six-case CSV comparison report from exported fresh histories and supplied references.
+
+- /backend/setup_targets.py - enumerates supported nodes/loads/coatings and writes/verifies explicit SI expression bindings.
+- /backend/setup_wizard.py - inspects isolated drawing copies and creates connected copies with private optical databases and receipts.
+- /frontend/setup_controller.py - queues wizard operations and handles setup results on the UI thread.
+- /frontend/setup_dialog.py - collects explicit model targets and reviews the scope of selected connections.
+- /docs/SETUP_WIZARD.md - user workflow, supported targets, units, scope and validation evidence.
