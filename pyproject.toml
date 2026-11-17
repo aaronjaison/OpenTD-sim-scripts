@@ -7,6 +7,7 @@ dependencies = []
 
 [project.optional-dependencies]
 test = ["pytest>=8,<10", "pytest-cov>=6,<8"]
+designer = ["grpcio>=1.60,<2", "grpcio-reflection>=1.60,<2", "protobuf>=4.25,<8"]
 opentd = ["pythonnet>=3.0,<4"]
 
 [tool.pytest.ini_options]

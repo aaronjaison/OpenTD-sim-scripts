@@ -11,7 +11,7 @@ class TestQueue:
         self.pending = deque()
         self.active = None
         self.reruns = {}
-        self.items = tk.Listbox(parent, height=3, exportselection=False)
+        self.items = tk.Listbox(parent, height=3, exportselection=False, bg="#111e30", fg="#dbe7f5", selectbackground="#28506b", relief="flat", highlightthickness=0)
         self.items.pack(fill="x", pady=5)
         ttk.Button(parent, text="Re-run selected test entirely", command=self.rerun_selected).pack(anchor="w")
         ttk.Button(parent, text="Remove waiting tests", command=self.clear).pack(anchor="w")

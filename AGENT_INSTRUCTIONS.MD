@@ -42,3 +42,57 @@ The OpenTD path requires a prepared DWG. Its case controls physical properties i
 
 - /backend/reuse.py - matches saved reports to configurations and input fingerprints, loads results, and supports forced reruns.
 - /frontend/test_queue.py - maintains FIFO test snapshots, visible status, waiting-test removal and selected-test reruns.
+
+- /backend/node_catalog.py - reads unique available thermal node IDs from an isolated drawing copy without solving.
+- /frontend/node_picker.py - displays the result-node dropdown and queues discovery, discarding results for a changed drawing.
+
+- /backend/node_results.py - validates all-node histories and exports individual temperatures plus unweighted mean/minimum/maximum histories.
+
+- /backend/sim_settings.py - validates prepared-model simulation inputs and applies required named case overrides.
+- /frontend/sim_form.py - compact opt-in simulation settings with SI labels and help.
+- /frontend/tooltips.py - reusable hover and keyboard-focus explanations.
+- /DWG_PREPARATION.md - model-author checklist, named parameters, units, bindings and acceptance checks.
+
+The current application presents one prepared-DWG workflow: file, case, simulation settings, result selection and test queue. The standalone preview is retained only as a backend utility, not as a separate UI tab.
+
+- /backend/case_catalog.py - discovers existing case names and groups in an isolated drawing copy.
+- /frontend/case_picker.py - selects exact cases/groups and rejects stale drawing results.
+
+- /frontend/errors.py - actionable failure dialogs and persistent traceback logs with queued request settings.
+
+- /backend/sweep_compare.py - validates histories, aligns saved times and compares nodes and area-weighted components.
+- /backend/ved_bundle.py - rebinds packaged VED study databases in a new local DWG copy.
+- /backend/ved_report.py - rebuilds the six-case CSV comparison report from exported fresh histories and supplied references.
+
+- /backend/setup_targets.py - enumerates supported nodes/loads/coatings and writes/verifies explicit SI expression bindings.
+- /backend/setup_wizard.py - inspects isolated drawing copies and creates connected copies with private optical databases and receipts.
+- /frontend/setup_controller.py - queues wizard operations and handles setup results on the UI thread.
+- /frontend/setup_dialog.py - collects explicit model targets and reviews the scope of selected connections.
+- /docs/SETUP_WIZARD.md - user workflow, supported targets, units, scope and validation evidence.
+
+- /frontend/setup_optics.py - explains empty optical catalogs and queues explicit model database selection/reinspection.
+
+## Guided model preparation modules
+- /backend/preparation/__init__.py - preparation package.
+- /backend/preparation/geometry.py - inspect supported thermal entities/nodes and reject geometry-only CAD.
+- /backend/preparation/project.py - SI recipe validation, material mapping coverage and draft persistence.
+- /backend/preparation/properties.py - private material/optical databases and explicit entity assignments.
+- /backend/preparation/environment.py - nodal loads, conductors, radiation boundary and transient case authoring.
+- /backend/preparation/builder.py - validate/build isolated model copies and emit preparation receipts.
+- /frontend/preparation/__init__.py - preparation UI package.
+- /frontend/preparation/controller.py - serialized inspection/build jobs and safe result selection.
+- /frontend/preparation/dialog.py - five guided stages and draft save/load.
+- /frontend/preparation/forms.py - shared SI forms and lists.
+- /frontend/preparation/materials.py - explicit entity/component/material/coating assignments.
+- /frontend/preparation/network.py - nodal powers and point-to-point conductance inputs.
+- /frontend/preparation/environment.py - initial/boundary/solver values and existing-orbit selection.
+- /frontend/panel_lifecycle.py - closes workbench child controllers and polling together.
+- /docs/MODEL_PREPARATION.md - raw-CAD meshing handoff, authored model scope and live validation evidence.
+
+## TD Designer automation modules
+- /backend/designer/rpc.py - bounded local vendor API calls and optional dependency guidance.
+- /backend/designer/session.py - guarded launcher and asynchronous CAD import readiness.
+- /backend/designer/probe.py - hosted license checkout and imported-body receipt.
+- /backend/designer/status.py - native meshing failures and complete XML export detection.
+- /backend/designer/workflow.py - isolated native working copy, meshing job and source fingerprint receipt.
+- /docs/TD_DESIGNER.md - import/mesh usage, prerequisites, limits and real assembly validation.

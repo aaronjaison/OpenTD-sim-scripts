@@ -10,7 +10,7 @@ import shutil
 from .plotting import svg
 
 
-def save_results(config, samples, output, engine="Lumped thermal preview", metadata=None, configuration=None):
+def save_results(config, samples, output, engine="Lumped thermal preview", metadata=None, configuration=None, artifacts=None):
     """Reserve an attempt number atomically; publish only a complete result set."""
     root = Path(output)
     root.mkdir(parents=True, exist_ok=True)
@@ -44,6 +44,8 @@ def save_results(config, samples, output, engine="Lumped thermal preview", metad
                    "metadata": metadata or {}}
         (pending / "config.json").write_text(json.dumps(details, indent=2), encoding="utf-8")
         report = report_text(details, samples)
+        if artifacts is not None:
+            report += artifacts(pending)
         (pending / "report.md").write_text(report, encoding="utf-8")
         pending.rename(target)
     except Exception:

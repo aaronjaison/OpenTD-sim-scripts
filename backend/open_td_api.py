@@ -90,3 +90,29 @@ def read_temperatures(filename, node):
         return times, temperatures
     finally:
         dataset.Close()
+
+
+def read_all_temperatures(filename):
+    """Read every unique saved thermal node in one vendor dataset session."""
+    load_api()
+    clr = importlib.import_module("clr")
+    system = importlib.import_module("System")
+    assembly = clr.AddReference(str(assembly_directory() / "OpenTD.Results.dll"))
+    dataset = system.Activator.CreateInstance(assembly.GetType("OpenTD.Results.Dataset.SaveFile"),
+                                             system.Array[system.Object]([str(filename)]))
+    try:
+        dataset.Units.SetToSI()
+        times = list(dataset.GetTimes())
+        identities = {(str(submodel), int(node)) for submodel in dataset.GetThermalSubmodels()
+                      for node in dataset.GetNodeIds(submodel)}
+        nodes = sorted(identities, key=lambda item: (item[0].casefold(), item[0], item[1]))
+        if not nodes:
+            raise ValueError("The SINDA result contains no thermal nodes.")
+        identifiers = [f"{submodel}.T{node}" for submodel, node in nodes]
+        arrays = list(dataset.GetData(system.Array[system.String](identifiers)))
+        if len(arrays) != len(nodes):
+            raise ValueError("SINDA returned an incomplete set of node temperatures.")
+        return times, {f"{submodel}.{node}": list(values)
+                       for (submodel, node), values in zip(nodes, arrays)}
+    finally:
+        dataset.Close()

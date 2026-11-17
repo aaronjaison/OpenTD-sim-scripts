@@ -7,9 +7,11 @@ import shutil
 import tempfile
 from . import open_td_api
 from .config import TrialConfig
+from .sim_settings import SimulationSettings, apply_settings
 from .results_interp import save_results
 from .solver import Sample
 from .toolchain import prepare_toolchain
+from .node_results import ALL_NODES, AVERAGE_DESCRIPTION, summarize, mean_samples, write_node_files
 
 
 @dataclass(frozen=True)
@@ -19,14 +21,19 @@ class OpenTDRequest:
     node: str
     group: str = ""
     overrides: str = ""
+    settings: SimulationSettings | None = None
 
     def validate(self):
         path = Path(self.drawing)
         if path.suffix.lower() != ".dwg" or not path.is_file():
             raise ValueError("Select a prepared Thermal Desktop .dwg file.")
-        if not self.case.strip() or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*\.\d+", self.node):
+        if not self.case.strip() or (self.node != ALL_NODES and not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*\.\d+", self.node)):
             raise ValueError("Enter the exact case name and a node such as MAIN.1.")
-        parse_overrides(self.overrides)
+        overrides = parse_overrides(self.overrides)
+        if self.settings is not None:
+            parameters = self.settings.parameters()
+            if {name.casefold() for name in overrides} & {name.casefold() for name in parameters}:
+                raise ValueError("Advanced overrides conflict with simulation settings.")
         return self
 
 
@@ -69,7 +76,10 @@ def run_prepared(request, output, progress):
     case.SaveTemp = 1
     case.RunSinda = 1
     case.RunSindaShowPlot = 0
-    for name, expression in parse_overrides(request.overrides).items():
+    overrides = parse_overrides(request.overrides)
+    if request.settings is not None:
+        overrides.update(apply_settings(desktop, case, request.settings))
+    for name, expression in overrides.items():
         names = list(case.SymbolNames)
         if name in names:
             case.SymbolValues[names.index(name)] = expression
@@ -84,7 +94,14 @@ def run_prepared(request, output, progress):
     saves = list(work.rglob("*.sav"))
     if len(saves) != 1:
         raise RuntimeError(f"Expected one fresh SINDA .sav result, found {len(saves)}. Inspect {work}.")
-    times, temperatures = open_td_api.read_temperatures(saves[0], request.node)
+    artifacts = None
+    if request.node == ALL_NODES:
+        times, histories = open_td_api.read_all_temperatures(saves[0])
+        summary = summarize(times, histories)
+        temperatures = [sample.temperature_k for sample in mean_samples(summary)]
+        artifacts = lambda folder: write_node_files(folder, times, histories, summary)
+    else:
+        times, temperatures = open_td_api.read_temperatures(saves[0], request.node)
     if not times or len(times) != len(temperatures):
         raise ValueError("OpenTD returned missing or mismatched time/temperature data.")
     if any(not math.isfinite(x) for x in times + temperatures):
@@ -93,9 +110,13 @@ def run_prepared(request, output, progress):
         raise ValueError("OpenTD result times must be strictly increasing.")
     samples = [Sample(t, temperature, None) for t, temperature in zip(times, temperatures)]
     metadata = {"drawing": str(Path(request.drawing).resolve()), "case": request.case,
-                "node": request.node, "overrides": parse_overrides(request.overrides),
+                "node": request.node, "overrides": overrides,
                 "solver_directory": str(work), "heat_w": "Not extracted; CSV column is blank.",
                 "model_description": "The prepared Thermal Desktop drawing defines physics; temperatures are exported in SI units."}
     config = TrialConfig(model=request.drawing)
-    folder = save_results(config, samples, root, "OpenTD prepared-case result", metadata, asdict(request))
+    engine = "OpenTD prepared-case result"
+    if request.node == ALL_NODES:
+        engine = "OpenTD all-node mean temperature"
+        metadata.update(node_count=len(histories), average_definition=AVERAGE_DESCRIPTION)
+    folder = save_results(config, samples, root, engine, metadata, asdict(request), artifacts)
     return samples, folder
